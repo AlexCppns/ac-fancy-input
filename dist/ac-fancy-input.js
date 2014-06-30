@@ -5,7 +5,7 @@
 // before all nested files are concatenated by Grunt
 
 // Modules
-var acfi = angular.module('ac-fancy-input');
+var acfi = angular.module('ac-fancy-input',[]);
 
 // ****************************************************************************************************************** //
 
@@ -301,6 +301,7 @@ acfi.factory('acfi-searchBoxData', [ '$timeout','$rootScope', 'acfi-intervalMana
     searchBoxData.init_array = _Init.split('').reverse();
     searchBoxData.pause_array = _Pause.split('').reverse();
     searchBoxData.continue_array = _Continue;
+    intervalManager.maxLoopIndex = _Continue.length;
   };
 
 

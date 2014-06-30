@@ -3,4 +3,4 @@
 // before all nested files are concatenated by Grunt
 
 // Modules
-var acfi = angular.module('ac-fancy-input');
+var acfi = angular.module('ac-fancy-input',[]);
