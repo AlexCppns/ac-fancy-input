@@ -60,11 +60,11 @@ acfi.directive('acFancyInputSuggestions', [ function(){
       '</div>';
 
   var footer_template = '<div class="view-more">' +
-      '<a data-ng-show="SearchBoxData.noResultDisplay == false && SearchBoxData.raw_suggestions.length > SearchBoxData.suggestionDisplayLimit" ' +
+      '<a data-ng-show="SearchBoxData.noResultDisplay == false && SearchBoxData.displayedLength() > SearchBoxData.suggestionDisplayLimit" ' +
       'data-ng-click="acfiViewMoreAction($event)">' +
-      '<div acfi-no-results></div>' +
+      '<div acfi-view-more></div>' +
       '</a>' +
-      '<a data-ng-show="SearchBoxData.noResultDisplay == true" class="no-results"><div acfi-view-more></div></a>'+
+      '<a data-ng-show="SearchBoxData.noResultDisplay == true" class="no-results"><div acfi-no-results></div></a>'+
       '</div>';
 
 

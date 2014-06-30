@@ -2,27 +2,27 @@
 <html lang="en" data-ng-app="exampleApp">
 <head class="ng-cloak">
 
-
+  <!-- Works with angularJS 1.2.9 -->
   <script src="../bower_components/angular/angular.min.js"></script>
-
-
   <script src="../dist/ac-fancy-input.js" type="text/javascript"></script>
   <script src="example.js" type="text/javascript"></script>
   <link href="example.css" media="all" rel="stylesheet">
-
-
-
-
 </head>
 
 <body class="ng-cloak">
-
-  <div ng-controller="AcExampleController">
-    <div class="main-search" data-ng-controller="acfi-SearchboxController">
+  <div ng-controller="AcExampleController"  >
+    <div class="main-search" data-ng-class="{ focus: $root.searchFieldIsFocus || SearchBoxData.display }" data-ng-controller="acfi-SearchboxController">
       <input ac-fancy-input>
     </div>
-
+    <div ac-fancy-input-suggestions>
+      <span acfi-header-template></span>
+      <div acfi-content-template>
+        <div>{{content.string}} - </div>
+        <div>Color: {{content.color}}</div>
+      </div>
+      <span acfi-view-more-template>View More</span>
+      <span acfi-no-results-template>No results for {{ SearchBoxData.string }}</span>
+    </div>
   </div>
-
 </body>
 </html>

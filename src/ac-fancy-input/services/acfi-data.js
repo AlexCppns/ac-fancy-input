@@ -16,7 +16,6 @@ acfi.factory('acfi-searchBoxData', [ '$timeout','$rootScope', 'acfi-intervalMana
   searchBoxData.animating = true;
   searchBoxData.colored_text = true;
   searchBoxData.watching = false;
-  searchBoxData.raw_suggestions = [];
   searchBoxData.font_style = { 'font-size': "2.75em" };
   searchBoxData.font_thresholds = [ [2000, 1.75], [50, 2.05], [45, 2.3], [40, 2.55], [35, 2.75] ];
   searchBoxData.noResultDisplay = false;

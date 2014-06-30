@@ -68,11 +68,11 @@ acfi.directive('acFancyInputSuggestions', [ function(){
       '</div>';
 
   var footer_template = '<div class="view-more">' +
-      '<a data-ng-show="SearchBoxData.noResultDisplay == false && SearchBoxData.raw_suggestions.length > SearchBoxData.suggestionDisplayLimit" ' +
+      '<a data-ng-show="SearchBoxData.noResultDisplay == false && SearchBoxData.displayedLength() > SearchBoxData.suggestionDisplayLimit" ' +
       'data-ng-click="acfiViewMoreAction($event)">' +
-      '<div acfi-no-results></div>' +
+      '<div acfi-view-more></div>' +
       '</a>' +
-      '<a data-ng-show="SearchBoxData.noResultDisplay == true" class="no-results"><div acfi-view-more></div></a>'+
+      '<a data-ng-show="SearchBoxData.noResultDisplay == true" class="no-results"><div acfi-no-results></div></a>'+
       '</div>';
 
 
@@ -200,6 +200,7 @@ acfi.directive('acFancyInput', [ '$rootScope', 'acfi-writerManager', "$timeout",
 
       input.on('blur', function() {
         scope.$apply(function() {
+          // to do, extract the extra condition
           var extra_condition = $rootScope.results === false;
           scope.searchBoxData.decideToStart(extra_condition);
           $rootScope.searchFieldIsFocus = false;
@@ -282,7 +283,6 @@ acfi.factory('acfi-searchBoxData', [ '$timeout','$rootScope', 'acfi-intervalMana
   searchBoxData.animating = true;
   searchBoxData.colored_text = true;
   searchBoxData.watching = false;
-  searchBoxData.raw_suggestions = [];
   searchBoxData.font_style = { 'font-size': "2.75em" };
   searchBoxData.font_thresholds = [ [2000, 1.75], [50, 2.05], [45, 2.3], [40, 2.55], [35, 2.75] ];
   searchBoxData.noResultDisplay = false;

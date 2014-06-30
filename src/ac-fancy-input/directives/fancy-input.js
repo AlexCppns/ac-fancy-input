@@ -76,6 +76,7 @@ acfi.directive('acFancyInput', [ '$rootScope', 'acfi-writerManager', "$timeout",
 
       input.on('blur', function() {
         scope.$apply(function() {
+          // to do, extract the extra condition
           var extra_condition = $rootScope.results === false;
           scope.searchBoxData.decideToStart(extra_condition);
           $rootScope.searchFieldIsFocus = false;

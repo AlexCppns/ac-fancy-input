@@ -1,3 +1,5 @@
+// Constants
+@fontnova: proxima-nova, Helvetica, Arial, sans-serif;
 @fontadelle: adelle, Helvetica, Arial, sans-serif;
 @darkgray: #3d383c;
 @white: #fff;
@@ -6,11 +8,41 @@
 @gray: #747474;
 @black: #202020;
 
+.clearfix {
+    *zoom:1;
+    &:before, &:after {
+        content:" ";
+        display:table;
+    }
+    &:after {
+        clear:both;
+    }
+}
 
+.alignleft { float:left; }
+.alignright { float:right; }
+.black { color:@black !important; }
+.bold { font-weight:700; }
+.center { text-align:center; }
+.hide { display:none !important; visibility:hidden; }
+.inline { display:inline-block !important; }
+.large { font-size:115%; }
+.left { text-align:left; }
+.light { font-weight:300; }
+.lower { text-transform:lowercase; }
+.red { color:@red; }
+.regular { font-weight:400; }
+.right { text-align:right; }
+.semi-bold { font-weight:600; }
+.small { font-size:85%; }
+.show { display:block; }
+.table-cell-hack { display:table-cell; }
+.upper { text-transform:uppercase; }
+.valign { display:inline-block; vertical-align:middle; }
+.white { color:@white; }
 
+// Mixings and other methods
 
-
-// resultat auto-suggest + modal
 .input-suggestion-mixin {
     li {
         padding:0; line-height:normal; border-bottom:1px solid #282528;
@@ -62,8 +94,6 @@
     animation:blink-caret 0.6s step-end infinite;
 }
 
-// Border Radius
-
 
 .border-radius(@args) {
     -webkit-border-radius: @args;
@@ -73,16 +103,27 @@
 }
 
 
-// Box Shadows
-
 .box-shadow(@args) {
     -webkit-box-shadow: @args;
     box-shadow: @args;
 }
+
+
 .inner-shadow(@args) {
     .box-shadow(inset @args);
 }
 
+body > div {
+    font-size: 0.95rem;
+}
+
+html { font-size:100%; }
+html, body { height:100%; }
+body { background-color:#fafafa; color:@gray; font: 93.8%/1.4 @fontnova; }
+body > div { position:relative; min-height:100%; }
+
+ul { margin:0; padding:0; list-style-type:none; }
+// Common styling
 
 input, textarea {
     padding:5px 10px; border: 1px solid #c2c2c4;
@@ -94,6 +135,9 @@ input, textarea {
     -webkit-box-sizing:border-box; -moz-box-sizing:border-box;
     box-sizing:border-box; outline:none;
 }
+
+
+// Specific styling
 
 .main-search {
     position:relative; display:inline-block; width:100%; max-width:1107px;
