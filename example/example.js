@@ -1,6 +1,5 @@
 var myApp = angular.module('exampleApp',['ac-fancy-input']);
 
-
 myApp.controller('AcExampleController', [ '$scope', 'acfi-searchBoxData', 'acfi-intervalManager' , function($scope, SearchBoxData, intervalManager){
 
   $scope.SearchBoxData = SearchBoxData;
@@ -20,5 +19,4 @@ myApp.controller('AcExampleController', [ '$scope', 'acfi-searchBoxData', 'acfi-
 
    $scope.SearchBoxData.initText(init_string, pause_string, continue_array);
    $scope.intervalManager.startAnimationInterval();
-
 }]);
