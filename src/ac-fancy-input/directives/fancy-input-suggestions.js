@@ -25,11 +25,12 @@ acfi.controller('acfiSuggestionsController',[ 'acfiData', '$scope','$q', functio
     });
   });
 
+  // Not sure if this is still necessary
   $scope.deferWatching = function(){
-    var deferred = $q.defer();
+    var d = $q.defer();
     $scope.AcfiData.watching = false;
-    deferred.resolve($scope.AcfiData.watching === false);
-    return deferred.promise;
+    d.resolve($scope.AcfiData.watching === false);
+    return d.promise;
   };
 }]);
 
@@ -39,7 +40,7 @@ acfi.controller('acfiSuggestionsController',[ 'acfiData', '$scope','$q', functio
 // **************************************** fancy input suggestions directives ************************************** //
 
 
-acfi.directive('acFancyInputSuggestions', [ function(){
+acfi.directive('acFancyInputSuggestions', [ '$rootScope', function($rootScope){
 
   var header_template = '<div ng-transclude></div><span acfi-header></span>';
 
@@ -74,31 +75,33 @@ acfi.directive('acFancyInputSuggestions', [ function(){
 
   return {
     scope: {
-      acfiQueryAction: '=acQueryAction',
       acfiViewMoreAction: '=acViewMoreAction',
       acSuggestionCount: '=?'
     },
     template: template,
     transclude: true,
     controller: 'acfiSuggestionsController',
-    link: function(scope,el,attrs){
+    link: function(scope, e, attrs){
       if(attrs.acSuggestionCount===undefined){
         scope.acSuggestionCount = 0;
       }
+
+      scope.acfiQueryAction = function(){
+        $rootScope.$broadcast('onSubmitQuery');
+      };
     }
   };
 }]);
 
-// s, e, a, c, t mean scope, element, attrs, controller, transclude
 
 var acfi_template_directive = function(string){
   return {
     transclude: true,
     restrict: 'A',
     require: '^acFancyInputSuggestions',
-    link: function(s, e, a, c, t){
-      e.remove();
-      c['renderAcfi'+string+'Template'] = t;
+    link: function(s, element, a, controller, transclude){
+      element.remove();
+      controller['renderAcfi'+string+'Template'] = transclude;
     }
   };
 };
@@ -107,10 +110,10 @@ var acfi_transclude_directive = function(string){
   return {
     restrict: 'A',
     require: '^acFancyInputSuggestions',
-    link: function(s, e, a, c){
-      if(c['renderAcfi'+string+'Template']!==undefined){
-        c['renderAcfi'+string+'Template'](s, function(dom){
-          e.append(dom);
+    link: function(scope, element, a, controller){
+      if(controller['renderAcfi'+string+'Template']!==undefined){
+        controller['renderAcfi'+string+'Template'](scope, function(dom){
+          element.append(dom);
         });
       }
     }

@@ -27,6 +27,7 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiInterval', function($ti
   acfiData.suggestion_types = [ { "klass": '', "contents": [], "name": '' } ];
   acfiData.actionTimeout = {};
   acfiData.init_string = '';
+  acfiData.selected = {};
 
 
   acfiData.initText = function(_Init,_Pause,_Continue){
@@ -141,6 +142,7 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiInterval', function($ti
   acfiData.selectWithIndexes = function(i1, i2){
     acfiData.suggestion_types[i1].contents[i2].selected = true;
     acfiData.selected_index = acfiData.flattenIndex(i1, i2);
+    acfiData.selected =    acfiData.suggestion_types[i1].contents[i2];
   };
 
 
@@ -165,14 +167,17 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiInterval', function($ti
     cloned_selected.string = acfiData.truncate(cloned_selected.string, 70);
     acfiData.watching = false;
     acfiData.colored_text = false;
-    acfiData.string = cloned_selected.string;
     acfiData.slug =  cloned_selected.slug;
     acfiData.type = cloned_selected.type;
-    acfiData.data_before = [ acfiData.fillChar(cloned_selected.string) ];
-    acfiData.data_after = [];
+    acfiData.updateInput(cloned_selected.string);
     acfiData.checkFontThreshold();
   };
 
+  acfiData.updateInput = function(string){
+    acfiData.string = string;
+    acfiData.data_before = [ acfiData.fillChar(string) ];
+    acfiData.data_after = [];
+  };
 
 
   acfiData.flattenIndex = function(i1, i2){

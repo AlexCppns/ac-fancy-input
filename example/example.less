@@ -43,6 +43,15 @@
 
 // Mixings and other methods
 
+@keyframes blink-caret {
+    from, to { background-color:#767575; }
+    50% { background-color:transparent; }
+}
+@-webkit-keyframes blink-caret {
+    from, to { background-color:#767575; }
+    50% { background-color:transparent; }
+}
+
 .input-suggestion-mixin {
     li {
         padding:0; line-height:normal; border-bottom:1px solid #282528;
@@ -78,7 +87,7 @@
                 background-color:#000; text-transform:none; letter-spacing:0.05em;
                 font-family:@fontadelle; font-size:1.2em; cursor:default;
                 &:hover { background-color:#000; }
-                span { color:@yellow; }
+                span span { color:@yellow; }
             }
         }
     }
@@ -140,6 +149,11 @@ input, textarea {
 // Specific styling
 
 .main-search {
+
+
+
+    .caret { .caret-mixin(); }
+
     position:relative; display:inline-block; width:100%; max-width:1107px;
     font-family:@fontadelle; margin-top:45px; padding:5px 75px 5px 18px; height:70px;
     background:rgba(0, 0, 0, 0.7); .border-radius(70px); color: @white;

@@ -7,6 +7,17 @@
 // Modules
 var acfi = angular.module('ac-fancy-input',[]);
 
+// Author: Alexandre FC Coppens
+// Date of first iteration: Fri 20 Jun 2014 15:29:06 EDT
+// Purpose: directive to create an advanced typeahead combined with an animated search input
+//
+// To Do:
+// - Consistent object names and configuration
+// - Remove $rootScope usage where not needed
+// - Package it with bower
+// - Write a short example with some css
+// - Singleton => Multiple instances
+// - Extract some of the classes
 // ****************************************************************************************************************** //
 
 // ******************************** controller definition for search-box-suggestions ******************************** //
@@ -33,11 +44,12 @@ acfi.controller('acfiSuggestionsController',[ 'acfiData', '$scope','$q', functio
     });
   });
 
+  // Not sure if this is still necessary
   $scope.deferWatching = function(){
-    var deferred = $q.defer();
+    var d = $q.defer();
     $scope.AcfiData.watching = false;
-    deferred.resolve($scope.AcfiData.watching === false);
-    return deferred.promise;
+    d.resolve($scope.AcfiData.watching === false);
+    return d.promise;
   };
 }]);
 
@@ -47,7 +59,7 @@ acfi.controller('acfiSuggestionsController',[ 'acfiData', '$scope','$q', functio
 // **************************************** fancy input suggestions directives ************************************** //
 
 
-acfi.directive('acFancyInputSuggestions', [ function(){
+acfi.directive('acFancyInputSuggestions', [ '$rootScope', function($rootScope){
 
   var header_template = '<div ng-transclude></div><span acfi-header></span>';
 
@@ -82,31 +94,33 @@ acfi.directive('acFancyInputSuggestions', [ function(){
 
   return {
     scope: {
-      acfiQueryAction: '=acQueryAction',
       acfiViewMoreAction: '=acViewMoreAction',
       acSuggestionCount: '=?'
     },
     template: template,
     transclude: true,
     controller: 'acfiSuggestionsController',
-    link: function(scope,el,attrs){
+    link: function(scope, e, attrs){
       if(attrs.acSuggestionCount===undefined){
         scope.acSuggestionCount = 0;
       }
+
+      scope.acfiQueryAction = function(){
+        $rootScope.$broadcast('onSubmitQuery');
+      };
     }
   };
 }]);
 
-// s, e, a, c, t mean scope, element, attrs, controller, transclude
 
 var acfi_template_directive = function(string){
   return {
     transclude: true,
     restrict: 'A',
     require: '^acFancyInputSuggestions',
-    link: function(s, e, a, c, t){
-      e.remove();
-      c['renderAcfi'+string+'Template'] = t;
+    link: function(s, element, a, controller, transclude){
+      element.remove();
+      controller['renderAcfi'+string+'Template'] = transclude;
     }
   };
 };
@@ -115,10 +129,10 @@ var acfi_transclude_directive = function(string){
   return {
     restrict: 'A',
     require: '^acFancyInputSuggestions',
-    link: function(s, e, a, c){
-      if(c['renderAcfi'+string+'Template']!==undefined){
-        c['renderAcfi'+string+'Template'](s, function(dom){
-          e.append(dom);
+    link: function(scope, element, a, controller){
+      if(controller['renderAcfi'+string+'Template']!==undefined){
+        controller['renderAcfi'+string+'Template'](scope, function(dom){
+          element.append(dom);
         });
       }
     }
@@ -136,7 +150,7 @@ acfi.directive('acfiViewMore', function(){ return acfi_transclude_directive('Vie
 
 // ************************************** controller definition for search-box ************************************** //
 
-acfi.controller('acfiSearchboxController', [ '$rootScope', '$scope', '$window', 'acfiInterval', 'acfiData', function($rootScope, $scope, $window, AcfiInterval, AcfiData) {
+acfi.controller('acfiSearchboxController', [ '$scope', '$window', 'acfiInterval', 'acfiData', function($scope, $window, AcfiInterval, AcfiData) {
 
   $window.focus();
 
@@ -279,6 +293,69 @@ acfi.directive('acfiResetDisplay', ['$rootScope', '$window', function($rootScope
 }]);
 
 
+// ****************************************************************************************************************** //
+
+// *********************************************** Writer Manager *************************************************** //
+
+// Utility service for the input field
+
+acfi.factory('acfiCaret', function () {
+
+  var acfiCaret = {};
+  acfiCaret.direction = -1;
+  acfiCaret.lastOffset = 0;
+
+  acfiCaret.charDir = {
+    lastDir : null,
+    check : function(s){
+      var ltrChars = 'A-Za-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02B8\u0300-\u0590\u0800-\u1FFF'+'\u2C00-\uFB1C\uFDFE-\uFE6F\uFEFD-\uFFFF',
+          rtlChars = '\u0591-\u07FF\uFB1D-\uFDFD\uFE70-\uFEFC',
+          ltrDirCheck = new RegExp('^[^'+rtlChars+']*['+ltrChars+']'),
+          rtlDirCheck = new RegExp('^[^'+ltrChars+']*['+rtlChars+']');
+
+      var dir = rtlDirCheck.test(s) ? 'rtl' : (ltrDirCheck.test(s) ? 'ltr' : '');
+      if( dir ){ this.lastDir = dir; }
+      return dir;
+    }
+  };
+
+
+  acfiCaret.setDirection = function(e){
+    var d = 0;
+    if( e.keyCode === 37 ){ d = -1; }
+    if( e.keyCode === 39 ){ d = 1; }
+    if(e.type === 'mousedown'){ acfiCaret.lastOffset = e.clientX; }
+    if(e.type === 'mouseup'){ d = e.clientX < acfiCaret.lastOffset ? -1 : 1; }
+    acfiCaret.direction = d;
+  };
+
+
+  acfiCaret.setCaret = function(element, up, e){
+    acfiCaret.setDirection(e);
+    var pos = acfiCaret.getCaretPosition(element);
+    if( acfiCaret.charDir.lastDir === 'rtl' ){
+      pos = element.value.length - pos; // BIDI support
+    }
+    if(up === true){
+      return pos;
+    } else {
+      return pos + acfiCaret.direction;
+    }
+  };
+
+
+  acfiCaret.getCaretPosition = function(element){
+    var caretPos, direction = acfiCaret.direction || 1;
+    if( element.selectionStart || element.selectionStart === '0' ){
+      caretPos = direction === -1 ? element.selectionStart : element.selectionEnd;
+    }
+    return caretPos || 0;
+  };
+
+  return acfiCaret;
+});
+
+
 // *************************************************************************************************************** //
 
 // ************************************************* acfi-data *************************************************** //
@@ -307,6 +384,7 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiInterval', function($ti
   acfiData.suggestion_types = [ { "klass": '', "contents": [], "name": '' } ];
   acfiData.actionTimeout = {};
   acfiData.init_string = '';
+  acfiData.selected = {};
 
 
   acfiData.initText = function(_Init,_Pause,_Continue){
@@ -421,6 +499,7 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiInterval', function($ti
   acfiData.selectWithIndexes = function(i1, i2){
     acfiData.suggestion_types[i1].contents[i2].selected = true;
     acfiData.selected_index = acfiData.flattenIndex(i1, i2);
+    acfiData.selected =    acfiData.suggestion_types[i1].contents[i2];
   };
 
 
@@ -445,14 +524,17 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiInterval', function($ti
     cloned_selected.string = acfiData.truncate(cloned_selected.string, 70);
     acfiData.watching = false;
     acfiData.colored_text = false;
-    acfiData.string = cloned_selected.string;
     acfiData.slug =  cloned_selected.slug;
     acfiData.type = cloned_selected.type;
-    acfiData.data_before = [ acfiData.fillChar(cloned_selected.string) ];
-    acfiData.data_after = [];
+    acfiData.updateInput(cloned_selected.string);
     acfiData.checkFontThreshold();
   };
 
+  acfiData.updateInput = function(string){
+    acfiData.string = string;
+    acfiData.data_before = [ acfiData.fillChar(string) ];
+    acfiData.data_after = [];
+  };
 
 
   acfiData.flattenIndex = function(i1, i2){
@@ -633,68 +715,5 @@ acfi.factory('acfiInterval', [ '$q', '$rootScope', '$interval', '$timeout', func
 
   return acfiInterval;
 }]);
-
-
-// ****************************************************************************************************************** //
-
-// *********************************************** Writer Manager *************************************************** //
-
-// Utility service for the input field
-
-acfi.factory('acfiCaret', function () {
-
-  var acfiCaret = {};
-  acfiCaret.direction = -1;
-  acfiCaret.lastOffset = 0;
-
-  acfiCaret.charDir = {
-    lastDir : null,
-    check : function(s){
-      var ltrChars = 'A-Za-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02B8\u0300-\u0590\u0800-\u1FFF'+'\u2C00-\uFB1C\uFDFE-\uFE6F\uFEFD-\uFFFF',
-          rtlChars = '\u0591-\u07FF\uFB1D-\uFDFD\uFE70-\uFEFC',
-          ltrDirCheck = new RegExp('^[^'+rtlChars+']*['+ltrChars+']'),
-          rtlDirCheck = new RegExp('^[^'+ltrChars+']*['+rtlChars+']');
-
-      var dir = rtlDirCheck.test(s) ? 'rtl' : (ltrDirCheck.test(s) ? 'ltr' : '');
-      if( dir ){ this.lastDir = dir; }
-      return dir;
-    }
-  };
-
-
-  acfiCaret.setDirection = function(e){
-    var d = 0;
-    if( e.keyCode === 37 ){ d = -1; }
-    if( e.keyCode === 39 ){ d = 1; }
-    if(e.type === 'mousedown'){ acfiCaret.lastOffset = e.clientX; }
-    if(e.type === 'mouseup'){ d = e.clientX < acfiCaret.lastOffset ? -1 : 1; }
-    acfiCaret.direction = d;
-  };
-
-
-  acfiCaret.setCaret = function(element, up, e){
-    acfiCaret.setDirection(e);
-    var pos = acfiCaret.getCaretPosition(element);
-    if( acfiCaret.charDir.lastDir === 'rtl' ){
-      pos = element.value.length - pos; // BIDI support
-    }
-    if(up === true){
-      return pos;
-    } else {
-      return pos + acfiCaret.direction;
-    }
-  };
-
-
-  acfiCaret.getCaretPosition = function(element){
-    var caretPos, direction = acfiCaret.direction || 1;
-    if( element.selectionStart || element.selectionStart === '0' ){
-      caretPos = direction === -1 ? element.selectionStart : element.selectionEnd;
-    }
-    return caretPos || 0;
-  };
-
-  return acfiCaret;
-});
 
 })(window, document);

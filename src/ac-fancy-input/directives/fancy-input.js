@@ -2,7 +2,7 @@
 
 // ************************************** controller definition for search-box ************************************** //
 
-acfi.controller('acfiSearchboxController', [ '$rootScope', '$scope', '$window', 'acfiInterval', 'acfiData', function($rootScope, $scope, $window, AcfiInterval, AcfiData) {
+acfi.controller('acfiSearchboxController', [ '$scope', '$window', 'acfiInterval', 'acfiData', function($scope, $window, AcfiInterval, AcfiData) {
 
   $window.focus();
 
