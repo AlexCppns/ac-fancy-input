@@ -1,50 +1,31 @@
 var myApp = angular.module('exampleApp',['ac-fancy-input']);
 
-myApp.controller('AcExampleController', ['$rootScope', '$scope', 'acfi-searchBoxData', 'acfi-intervalManager', '$filter' , function($rootScope, $scope, SearchBoxData, intervalManager,$filter){
+myApp.factory('sampleData',[function(){
 
-  $scope.SearchBoxData = SearchBoxData;
-  $scope.intervalManager = intervalManager;
-
-  $rootScope.searchFieldIsFocus = false;
-
-  $scope.example_fruits = [
-    { string: 'strawberry', color: 'red' },
-    { string: 'banana', color: 'yellow' },
-    { string: 'green Apple', color: 'green' }
-  ];
-
-  $scope.example_vegetables = [
-
-    { string: 'Zucchini Squash', color: 'green' },
-    { string: 'Sweet Corn', color: 'yellow' },
-    { string: 'tomatoes', color: 'red' }
-  ];
-
-  $scope.SearchBoxData.suggestion_types = [
-    { "klass": "fruits", "contents": [], "name": 'Fruits' },
-    { "klass": "vegetables", "contents": [], "name": 'Vegetables' }
-  ];
-
-  var init_string = "+This is a example of fancy input";
-  var pause_string  = "+";
-  var continue_array = [
-    "This is a example of fancy input",
-    "You can customize the content the way you want",
-    "And even +change the colors"
-  ];
-
-  $scope.SearchBoxData.initText(init_string, pause_string, continue_array);
-  $scope.intervalManager.startAnimationInterval();
-  $rootScope.results = false;
-
-
-  $scope.$on("onQuerySuggestions", function (event, query) {
-    $scope.SearchBoxData.suggestion_types[0].contents = $filter('suggestions')($scope.example_fruits, query);
-    $scope.SearchBoxData.suggestion_types[1].contents = $filter('suggestions')($scope.example_vegetables, query);
-    $scope.SearchBoxData.display = true;
-    $scope.SearchBoxData.noResultDisplay = ($scope.SearchBoxData.displayedLength()===0);
-  });
+  // Example of data source, you can replace is by your own
+  return {
+    fruits:
+      [ { string: 'strawberry', color: 'red' }, { string: 'banana', color: 'yellow' }, { string: 'green Apple', color: 'green' } ],
+    vegetables:
+      [ { string: 'Zucchini Squash', color: 'green' }, { string: 'Sweet Corn', color: 'yellow' }, { string: 'tomatoes', color: 'red' } ]
+  };
 }]);
+
+myApp.factory('sampleMessage', [ function(){
+
+  // example of message strings for the searchbox animation
+  // the + and - characters are used to control the presence or absence of color
+  return {
+    init_string: "+This is a example of fancy input",
+    pause_string: "",
+    continue_array: [
+      "This is a example of fancy input",
+      "You can customize the content the way you want",
+      "And even change the -c+o-l+o-r+s"
+    ]
+  };
+}]);
+
 
 myApp.filter("suggestions", function(){
   return function(suggestions, search){
@@ -58,3 +39,30 @@ myApp.filter("suggestions", function(){
     return filtered_s;
   };
 });
+
+
+myApp.controller('AcExampleController', [ '$scope', 'acfiData', 'acfi-intervalManager', '$filter', 'sampleData', 'sampleMessage' , function($scope, AcfiData, intervalManager, $filter, sampleData, sampleMessage){
+
+  $scope.AcfiData = AcfiData;
+  $scope.intervalManager = intervalManager;
+  $scope.sampleData = sampleData;
+
+  $scope.AcfiData.suggestion_types = [
+    { "klass": "fruits", "contents": [], "name": 'Fruits' },
+    { "klass": "vegetables", "contents": [], "name": 'Vegetables' }
+  ];
+  $scope.allowAnimation = true;
+
+  $scope.AcfiData.initText(sampleMessage.init_string, sampleMessage.pause_string, sampleMessage.continue_array);
+
+  $scope.intervalManager.startAnimationInterval();
+
+  $scope.$on("onQuerySuggestions", function (event, query) {
+    $scope.AcfiData.suggestion_types[0].contents = $filter('suggestions')($scope.sampleData.fruits, query);
+    $scope.AcfiData.suggestion_types[1].contents = $filter('suggestions')($scope.sampleData.vegetables, query);
+    $scope.AcfiData.display = true;
+    $scope.AcfiData.noResultDisplay = ($scope.AcfiData.displayedLength()===0);
+    $scope.allowAnimation = false;
+  });
+}]);
+

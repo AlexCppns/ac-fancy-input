@@ -2,11 +2,11 @@
 
 // ************************************** controller definition for search-box ************************************** //
 
-acfi.controller('acfi-SearchboxController', [ '$rootScope', '$scope', '$window', 'acfi-intervalManager', 'acfi-searchBoxData', function($rootScope, $scope, $window, intervalManager, SearchBoxData) {
+acfi.controller('acfi-SearchboxController', [ '$rootScope', '$scope', '$window', 'acfi-intervalManager', 'acfiData', function($rootScope, $scope, $window, intervalManager, AcfiData) {
 
   $window.focus();
 
-  $scope.searchBoxData = SearchBoxData;
+  $scope.AcfiData = AcfiData;
   $scope.intervalManager = intervalManager;
 
   $window.onblur = function (){
@@ -19,23 +19,23 @@ acfi.controller('acfi-SearchboxController', [ '$rootScope', '$scope', '$window',
 
 
   $scope.$on('onInitInterval', function () {
-    $scope.searchBoxData.init($scope.intervalManager);
+    $scope.AcfiData.init($scope.intervalManager);
   });
 
 
   $scope.$on('onPauseInterval', function(event, loopIndex){
-    $scope.searchBoxData.pause(loopIndex);
+    $scope.AcfiData.pause(loopIndex);
   });
 
 
   $scope.$on('onContinueInterval', function(){
-    $scope.searchBoxData.continueC($scope.intervalManager);
+    $scope.AcfiData.continueC($scope.intervalManager);
   });
 
 
   $scope.$on('onStopInterval', function(){
-    $scope.searchBoxData.string = "";
-    $scope.searchBoxData.data_before = [];
+    $scope.AcfiData.string = "";
+    $scope.AcfiData.data_before = [];
   });
 }]);
 
@@ -44,29 +44,34 @@ acfi.controller('acfi-SearchboxController', [ '$rootScope', '$scope', '$window',
 
 // ******************************************* fancy input directives *********************************************** //
 
-acfi.directive('acFancyInput', [ '$rootScope', 'acfi-writerManager', "$timeout", 'acfi-searchBoxData', function($rootScope, writerManager, $timeout, SearchBoxData) {
+acfi.directive('acFancyInput', [ '$rootScope', 'acfi-writerManager', "$timeout", 'acfiData', function($rootScope, writerManager, $timeout, AcfiData) {
 
   var template = '<div><input tabindex="2" id="inputAnimation" class="anim-field" type="text" maxlength="70" spellcheck="false"';
-  template += ' data-ng-class="{\'no-opacity\': SearchBoxData.animating == false}")';
-  template += ' data-ng-style="SearchBoxData.font_style"';
-  template += ' data-ng-model="SearchBoxData.string">';
-  template += '<div data-ng-style="SearchBoxData.font_style" class="fancyInputFiller">';
-  template += '<span data-ng-repeat="char in SearchBoxData.data_before track by $index" data-ng-class="{colored: char[0] == true}">{{char[1]}}</span>';
+  template += ' data-ng-class="{\'no-opacity\': AcfiData.animating == false}")';
+  template += ' data-ng-style="AcfiData.font_style"';
+  template += ' data-ng-model="AcfiData.string">';
+  template += '<div data-ng-style="AcfiData.font_style" class="fancyInputFiller">';
+  template += '<span data-ng-repeat="char in AcfiData.data_before track by $index" data-ng-class="{colored: char[0] == true}">{{char[1]}}</span>';
   template += '<b class="caret" data-ng-hide="$root.hideCaret">&#8203;</b>';
-  template += '<span data-ng-repeat="char_2 in SearchBoxData.data_after track by $index">{{char_2}}</span>';
+  template += '<span data-ng-repeat="char_2 in AcfiData.data_after track by $index">{{char_2}}</span>';
   template += '</div></div>';
 
   return {
     restrict: "A",
     template: template,
     replace: true,
+    scope: {
+     animate: "=animate"
+    },
 
     link: function (scope, element, attrs) {
+
+      $rootScope.searchFieldIsFocus = false;
 
       var input = element.children(1);
       scope.filterTextTimeout = {};
       scope.writerManager = writerManager;
-      scope.searchBoxData = SearchBoxData;
+      scope.AcfiData = AcfiData;
 
       input.bind("keyup select mouseup cut paste", function (e) {
         if(e.keyCode !== 13){ scope.processBinding(e, this); }
@@ -77,15 +82,15 @@ acfi.directive('acFancyInput', [ '$rootScope', 'acfi-writerManager', "$timeout",
       input.on('blur', function() {
         scope.$apply(function() {
           // to do, extract the extra condition
-          var extra_condition = $rootScope.results === false;
-          scope.searchBoxData.decideToStart(extra_condition);
+          var extra_condition = scope.animate;
+          scope.AcfiData.decideToStart(extra_condition);
           $rootScope.searchFieldIsFocus = false;
         });
       });
 
       input.on('focus', function() {
         scope.$apply(function() {
-          scope.SearchBoxData.decideToStop();
+          scope.AcfiData.decideToStop();
           $rootScope.searchFieldIsFocus = true;
         });
       });
@@ -101,7 +106,7 @@ acfi.directive('acFancyInput', [ '$rootScope', 'acfi-writerManager', "$timeout",
             $rootScope.$broadcast("onKeyUpAndDown", direction);
           }else{
             // reset selection if typing
-            scope.$apply(function () { scope.searchBoxData.selected_index = 10000; });
+            scope.$apply(function () { scope.AcfiData.selected_index = 10000; });
             scope.processBinding(e, this);
           }
         }
@@ -112,16 +117,16 @@ acfi.directive('acFancyInput', [ '$rootScope', 'acfi-writerManager', "$timeout",
         scope.$apply(function () {
           var input_str = input.val().replace(/\s+/g, "\u00A0").split("").reverse();
           var pos = scope.writerManager.setCaret(el, true, e);
-          scope.searchBoxData.processBinding(input_str,pos,input.val());
+          scope.AcfiData.processBinding(input_str,pos,input.val());
         });
       };
 
       // looks like I can only watch a ngModel or expression
-      scope.$watch(function(){ return scope.searchBoxData.string; }, function (value) {
-        if(scope.searchBoxData.watching === true){
+      scope.$watch(function(){ return scope.AcfiData.string; }, function (value) {
+        if(scope.AcfiData.watching === true){
           if(scope.filterTextTimeout){ $timeout.cancel(scope.filterTextTimeout); }
           scope.filterTextTimeout = $timeout(function() {
-            scope.searchBoxData.checkFontThreshold();
+            scope.AcfiData.checkFontThreshold();
             $rootScope.$broadcast("onQuerySuggestions", value);
           }, 140);
         }
