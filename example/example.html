@@ -11,10 +11,10 @@
 
 <body class="ng-cloak">
   <div ng-controller="AcExampleController"  >
-    <div class="main-search" data-ng-class="{ focus: $root.searchFieldIsFocus || AcfiData.display }" data-ng-controller="acfi-SearchboxController">
+    <div class="main-search" data-ng-class="{ focus: $root.searchFieldIsFocus || AcfiData.display }" data-ng-controller="acfiSearchboxController">
       <input ac-fancy-input animate="allowAnimation">
     </div>
-    <div ac-fancy-input-suggestions>
+    <div ac-fancy-input-suggestions ac-suggestion-count="8">
       <div acfi-content-template>
         <div>{{content.string}} - </div>
         <div>Color: {{content.color}}</div>

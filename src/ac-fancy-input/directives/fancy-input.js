@@ -2,24 +2,24 @@
 
 // ************************************** controller definition for search-box ************************************** //
 
-acfi.controller('acfi-SearchboxController', [ '$rootScope', '$scope', '$window', 'acfi-intervalManager', 'acfiData', function($rootScope, $scope, $window, intervalManager, AcfiData) {
+acfi.controller('acfiSearchboxController', [ '$rootScope', '$scope', '$window', 'acfiInterval', 'acfiData', function($rootScope, $scope, $window, AcfiInterval, AcfiData) {
 
   $window.focus();
 
   $scope.AcfiData = AcfiData;
-  $scope.intervalManager = intervalManager;
+  $scope.AcfiInterval = AcfiInterval;
 
   $window.onblur = function (){
-    $scope.intervalManager.inFocus = false;
+    $scope.AcfiInterval.inFocus = false;
   };
 
   $window.onfocus = function (){
-    $scope.intervalManager.inFocus = true;
+    $scope.AcfiInterval.inFocus = true;
   };
 
 
   $scope.$on('onInitInterval', function () {
-    $scope.AcfiData.init($scope.intervalManager);
+    $scope.AcfiData.init();
   });
 
 
@@ -29,7 +29,7 @@ acfi.controller('acfi-SearchboxController', [ '$rootScope', '$scope', '$window',
 
 
   $scope.$on('onContinueInterval', function(){
-    $scope.AcfiData.continueC($scope.intervalManager);
+    $scope.AcfiData.continueC();
   });
 
 
@@ -44,7 +44,7 @@ acfi.controller('acfi-SearchboxController', [ '$rootScope', '$scope', '$window',
 
 // ******************************************* fancy input directives *********************************************** //
 
-acfi.directive('acFancyInput', [ '$rootScope', 'acfi-writerManager', "$timeout", 'acfiData', function($rootScope, writerManager, $timeout, AcfiData) {
+acfi.directive('acFancyInput', [ '$rootScope', 'acfiCaret', "$timeout", 'acfiData', function($rootScope, acfiCaret, $timeout, AcfiData) {
 
   var template = '<div><input tabindex="2" id="inputAnimation" class="anim-field" type="text" maxlength="70" spellcheck="false"';
   template += ' data-ng-class="{\'no-opacity\': AcfiData.animating == false}")';
@@ -70,7 +70,7 @@ acfi.directive('acFancyInput', [ '$rootScope', 'acfi-writerManager', "$timeout",
 
       var input = element.children(1);
       scope.filterTextTimeout = {};
-      scope.writerManager = writerManager;
+      scope.acfiCaret = acfiCaret;
       scope.AcfiData = AcfiData;
 
       input.bind("keyup select mouseup cut paste", function (e) {
@@ -81,9 +81,7 @@ acfi.directive('acFancyInput', [ '$rootScope', 'acfi-writerManager', "$timeout",
 
       input.on('blur', function() {
         scope.$apply(function() {
-          // to do, extract the extra condition
-          var extra_condition = scope.animate;
-          scope.AcfiData.decideToStart(extra_condition);
+          scope.AcfiData.decideToStart(scope.animate);
           $rootScope.searchFieldIsFocus = false;
         });
       });
@@ -116,7 +114,7 @@ acfi.directive('acFancyInput', [ '$rootScope', 'acfi-writerManager', "$timeout",
 
         scope.$apply(function () {
           var input_str = input.val().replace(/\s+/g, "\u00A0").split("").reverse();
-          var pos = scope.writerManager.setCaret(el, true, e);
+          var pos = scope.acfiCaret.setCaret(el, true, e);
           scope.AcfiData.processBinding(input_str,pos,input.val());
         });
       };

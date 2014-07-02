@@ -5,7 +5,7 @@
 
 // data handler for fancy input
 
-acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfi-intervalManager', function($timeout, $rootScope, intervalManager){
+acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiInterval', function($timeout, $rootScope, AcfiInterval){
 
   var acfiData = {};
 
@@ -34,7 +34,7 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfi-intervalManager', func
     acfiData.init_array = _Init.split('').reverse();
     acfiData.pause_array = _Pause.split('').reverse();
     acfiData.continue_array = _Continue;
-    intervalManager.maxLoopIndex = _Continue.length;
+    AcfiInterval.maxLoopIndex = _Continue.length;
   };
 
 
@@ -56,13 +56,13 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfi-intervalManager', func
   };
 
 
-  acfiData.init = function(intervalManager){
+  acfiData.init = function(){
     if(acfiData.init_array.length > 0){
       var s = acfiData.init_array.pop();
       acfiData.data_before.push(acfiData.fillChar(s));
     }else{
-      if(intervalManager.inFocus === true){
-        intervalManager.pauseAnimationInterval();
+      if(AcfiInterval.inFocus === true){
+        AcfiInterval.pauseAnimationInterval();
       }
     }
   };
@@ -79,12 +79,12 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfi-intervalManager', func
   };
 
 
-  acfiData.continueC = function(intervalManager){
+  acfiData.continueC = function(){
     if(acfiData.tmp_str.length > 0 ){
       var s = acfiData.tmp_str.pop();
       acfiData.data_before.push(acfiData.fillChar(s));
     }else{
-      intervalManager.pauseAnimationInterval();
+      AcfiInterval.pauseAnimationInterval();
     }
   };
 
@@ -209,7 +209,7 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfi-intervalManager', func
     }
     if(acfiData.animating === true){
       acfiData.animating = false;
-      intervalManager.stopAnimationInterval();
+      AcfiInterval.stopAnimationInterval();
     }
   };
 
@@ -221,7 +221,7 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfi-intervalManager', func
       acfiData.actionTimeout = $timeout(function(){
         acfiData.reset();
         $rootScope.$broadcast("onResetInterval");
-        intervalManager.startAnimationInterval();
+        AcfiInterval.startAnimationInterval();
       }, 150);
     }
   };

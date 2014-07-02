@@ -60,7 +60,7 @@ acfi.directive('acFancyInputSuggestions', [ function(){
       '</div>';
 
   var footer_template = '<div class="view-more">' +
-      '<a data-ng-show="AcfiData.noResultDisplay == false && AcfiData.displayedLength() > AcfiData.suggestionDisplayLimit" ' +
+      '<a data-ng-show="AcfiData.noResultDisplay == false && acSuggestionCount > AcfiData.suggestionDisplayLimit" ' +
       'data-ng-click="acfiViewMoreAction($event)">' +
       '<div acfi-view-more></div>' +
       '</a>' +
@@ -75,11 +75,17 @@ acfi.directive('acFancyInputSuggestions', [ function(){
   return {
     scope: {
       acfiQueryAction: '=acQueryAction',
-      acfiViewMoreAction: '=acViewMoreAction'
+      acfiViewMoreAction: '=acViewMoreAction',
+      acSuggestionCount: '=?'
     },
     template: template,
     transclude: true,
-    controller: 'acfiSuggestionsController'
+    controller: 'acfiSuggestionsController',
+    link: function(scope,el,attrs){
+      if(attrs.acSuggestionCount===undefined){
+        scope.acSuggestionCount = 0;
+      }
+    }
   };
 }]);
 
@@ -102,7 +108,11 @@ var acfi_transclude_directive = function(string){
     restrict: 'A',
     require: '^acFancyInputSuggestions',
     link: function(s, e, a, c){
-      c['renderAcfi'+string+'Template'](s, function(dom){ e.append(dom); });
+      if(c['renderAcfi'+string+'Template']!==undefined){
+        c['renderAcfi'+string+'Template'](s, function(dom){
+          e.append(dom);
+        });
+      }
     }
   };
 };

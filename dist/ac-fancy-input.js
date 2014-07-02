@@ -68,7 +68,7 @@ acfi.directive('acFancyInputSuggestions', [ function(){
       '</div>';
 
   var footer_template = '<div class="view-more">' +
-      '<a data-ng-show="AcfiData.noResultDisplay == false && AcfiData.displayedLength() > AcfiData.suggestionDisplayLimit" ' +
+      '<a data-ng-show="AcfiData.noResultDisplay == false && acSuggestionCount > AcfiData.suggestionDisplayLimit" ' +
       'data-ng-click="acfiViewMoreAction($event)">' +
       '<div acfi-view-more></div>' +
       '</a>' +
@@ -83,11 +83,17 @@ acfi.directive('acFancyInputSuggestions', [ function(){
   return {
     scope: {
       acfiQueryAction: '=acQueryAction',
-      acfiViewMoreAction: '=acViewMoreAction'
+      acfiViewMoreAction: '=acViewMoreAction',
+      acSuggestionCount: '=?'
     },
     template: template,
     transclude: true,
-    controller: 'acfiSuggestionsController'
+    controller: 'acfiSuggestionsController',
+    link: function(scope,el,attrs){
+      if(attrs.acSuggestionCount===undefined){
+        scope.acSuggestionCount = 0;
+      }
+    }
   };
 }]);
 
@@ -110,7 +116,11 @@ var acfi_transclude_directive = function(string){
     restrict: 'A',
     require: '^acFancyInputSuggestions',
     link: function(s, e, a, c){
-      c['renderAcfi'+string+'Template'](s, function(dom){ e.append(dom); });
+      if(c['renderAcfi'+string+'Template']!==undefined){
+        c['renderAcfi'+string+'Template'](s, function(dom){
+          e.append(dom);
+        });
+      }
     }
   };
 };
@@ -126,24 +136,24 @@ acfi.directive('acfiViewMore', function(){ return acfi_transclude_directive('Vie
 
 // ************************************** controller definition for search-box ************************************** //
 
-acfi.controller('acfi-SearchboxController', [ '$rootScope', '$scope', '$window', 'acfi-intervalManager', 'acfiData', function($rootScope, $scope, $window, intervalManager, AcfiData) {
+acfi.controller('acfiSearchboxController', [ '$rootScope', '$scope', '$window', 'acfiInterval', 'acfiData', function($rootScope, $scope, $window, AcfiInterval, AcfiData) {
 
   $window.focus();
 
   $scope.AcfiData = AcfiData;
-  $scope.intervalManager = intervalManager;
+  $scope.AcfiInterval = AcfiInterval;
 
   $window.onblur = function (){
-    $scope.intervalManager.inFocus = false;
+    $scope.AcfiInterval.inFocus = false;
   };
 
   $window.onfocus = function (){
-    $scope.intervalManager.inFocus = true;
+    $scope.AcfiInterval.inFocus = true;
   };
 
 
   $scope.$on('onInitInterval', function () {
-    $scope.AcfiData.init($scope.intervalManager);
+    $scope.AcfiData.init();
   });
 
 
@@ -153,7 +163,7 @@ acfi.controller('acfi-SearchboxController', [ '$rootScope', '$scope', '$window',
 
 
   $scope.$on('onContinueInterval', function(){
-    $scope.AcfiData.continueC($scope.intervalManager);
+    $scope.AcfiData.continueC();
   });
 
 
@@ -168,7 +178,7 @@ acfi.controller('acfi-SearchboxController', [ '$rootScope', '$scope', '$window',
 
 // ******************************************* fancy input directives *********************************************** //
 
-acfi.directive('acFancyInput', [ '$rootScope', 'acfi-writerManager', "$timeout", 'acfiData', function($rootScope, writerManager, $timeout, AcfiData) {
+acfi.directive('acFancyInput', [ '$rootScope', 'acfiCaret', "$timeout", 'acfiData', function($rootScope, acfiCaret, $timeout, AcfiData) {
 
   var template = '<div><input tabindex="2" id="inputAnimation" class="anim-field" type="text" maxlength="70" spellcheck="false"';
   template += ' data-ng-class="{\'no-opacity\': AcfiData.animating == false}")';
@@ -194,7 +204,7 @@ acfi.directive('acFancyInput', [ '$rootScope', 'acfi-writerManager', "$timeout",
 
       var input = element.children(1);
       scope.filterTextTimeout = {};
-      scope.writerManager = writerManager;
+      scope.acfiCaret = acfiCaret;
       scope.AcfiData = AcfiData;
 
       input.bind("keyup select mouseup cut paste", function (e) {
@@ -205,9 +215,7 @@ acfi.directive('acFancyInput', [ '$rootScope', 'acfi-writerManager', "$timeout",
 
       input.on('blur', function() {
         scope.$apply(function() {
-          // to do, extract the extra condition
-          var extra_condition = scope.animate;
-          scope.AcfiData.decideToStart(extra_condition);
+          scope.AcfiData.decideToStart(scope.animate);
           $rootScope.searchFieldIsFocus = false;
         });
       });
@@ -240,7 +248,7 @@ acfi.directive('acFancyInput', [ '$rootScope', 'acfi-writerManager', "$timeout",
 
         scope.$apply(function () {
           var input_str = input.val().replace(/\s+/g, "\u00A0").split("").reverse();
-          var pos = scope.writerManager.setCaret(el, true, e);
+          var pos = scope.acfiCaret.setCaret(el, true, e);
           scope.AcfiData.processBinding(input_str,pos,input.val());
         });
       };
@@ -277,7 +285,7 @@ acfi.directive('acfiResetDisplay', ['$rootScope', '$window', function($rootScope
 
 // data handler for fancy input
 
-acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfi-intervalManager', function($timeout, $rootScope, intervalManager){
+acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiInterval', function($timeout, $rootScope, AcfiInterval){
 
   var acfiData = {};
 
@@ -306,7 +314,7 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfi-intervalManager', func
     acfiData.init_array = _Init.split('').reverse();
     acfiData.pause_array = _Pause.split('').reverse();
     acfiData.continue_array = _Continue;
-    intervalManager.maxLoopIndex = _Continue.length;
+    AcfiInterval.maxLoopIndex = _Continue.length;
   };
 
 
@@ -328,13 +336,13 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfi-intervalManager', func
   };
 
 
-  acfiData.init = function(intervalManager){
+  acfiData.init = function(){
     if(acfiData.init_array.length > 0){
       var s = acfiData.init_array.pop();
       acfiData.data_before.push(acfiData.fillChar(s));
     }else{
-      if(intervalManager.inFocus === true){
-        intervalManager.pauseAnimationInterval();
+      if(AcfiInterval.inFocus === true){
+        AcfiInterval.pauseAnimationInterval();
       }
     }
   };
@@ -351,12 +359,12 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfi-intervalManager', func
   };
 
 
-  acfiData.continueC = function(intervalManager){
+  acfiData.continueC = function(){
     if(acfiData.tmp_str.length > 0 ){
       var s = acfiData.tmp_str.pop();
       acfiData.data_before.push(acfiData.fillChar(s));
     }else{
-      intervalManager.pauseAnimationInterval();
+      AcfiInterval.pauseAnimationInterval();
     }
   };
 
@@ -481,7 +489,7 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfi-intervalManager', func
     }
     if(acfiData.animating === true){
       acfiData.animating = false;
-      intervalManager.stopAnimationInterval();
+      AcfiInterval.stopAnimationInterval();
     }
   };
 
@@ -493,7 +501,7 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfi-intervalManager', func
       acfiData.actionTimeout = $timeout(function(){
         acfiData.reset();
         $rootScope.$broadcast("onResetInterval");
-        intervalManager.startAnimationInterval();
+        AcfiInterval.startAnimationInterval();
       }, 150);
     }
   };
@@ -522,108 +530,108 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfi-intervalManager', func
 
 // ********************************************************************************************************************* //
 
-// ********************************************* acfi-interval-manager ************************************************* //
+// ********************************************* acfi-interval ********************************************************* //
 
 // manages text animation in the input field
 
-acfi.factory('acfi-intervalManager', [ '$q', '$rootScope', '$interval', '$timeout', function ($q, $rootScope, $interval, $timeout) {
+acfi.factory('acfiInterval', [ '$q', '$rootScope', '$interval', '$timeout', function ($q, $rootScope, $interval, $timeout) {
 
-  var intervalManager = {};
+  var acfiInterval = {};
 
-  intervalManager.intervalTime = 90;
-  intervalManager.pauseTimeoutTime = 2000;
-  intervalManager.stopInterval = false;
-  intervalManager.initInterval = null;
-  intervalManager.pauseTimeout = null;
-  intervalManager.continueInterval = null;
-  intervalManager.loopIndex = 0;
-  intervalManager.maxLoopIndex= 6;
-  intervalManager.miniTimeout = null;
-  intervalManager.inFocus = true;
-  intervalManager.antiKonami = false;
+  acfiInterval.intervalTime = 90;
+  acfiInterval.pauseTimeoutTime = 2000;
+  acfiInterval.stopInterval = false;
+  acfiInterval.initInterval = null;
+  acfiInterval.pauseTimeout = null;
+  acfiInterval.continueInterval = null;
+  acfiInterval.loopIndex = 0;
+  acfiInterval.maxLoopIndex= 6;
+  acfiInterval.miniTimeout = null;
+  acfiInterval.inFocus = true;
+  acfiInterval.antiKonami = false;
 
-  intervalManager.startAnimationInterval = function () {
-    if(intervalManager.antiKonami === false){
-      intervalManager.pauseTimeout = null;
-      intervalManager.continueInterval = null;
+  acfiInterval.startAnimationInterval = function () {
+    if(acfiInterval.antiKonami === false){
+      acfiInterval.pauseTimeout = null;
+      acfiInterval.continueInterval = null;
 
-      intervalManager.initInterval = $interval(function () {
-        if(intervalManager.inFocus === true){
+      acfiInterval.initInterval = $interval(function () {
+        if(acfiInterval.inFocus === true){
           // only refresh state if in focus
           $rootScope.$broadcast("onInitInterval");
         }
-      }, intervalManager.intervalTime);
-      intervalManager.antiKonami = true;
+      }, acfiInterval.intervalTime);
+      acfiInterval.antiKonami = true;
     }
   };
 
 
-  intervalManager.stopAnimationInterval = function () {
-    intervalManager.antiKonami = false;
-    intervalManager.loopIndex = 0;
-    intervalManager.safeCancel(intervalManager.initInterval);
-    intervalManager.safeTimeoutCancel(intervalManager.pauseTimeout);
-    intervalManager.safeTimeoutCancel(intervalManager.miniTimeout);
-    intervalManager.safeCancel(intervalManager.continueInterval);
-    intervalManager.initInterval = null;
-    intervalManager.continueInterval = null;
-    intervalManager.pauseTimeout = null;
-    intervalManager.stopInterval = true;
+  acfiInterval.stopAnimationInterval = function () {
+    acfiInterval.antiKonami = false;
+    acfiInterval.loopIndex = 0;
+    acfiInterval.safeCancel(acfiInterval.initInterval);
+    acfiInterval.safeTimeoutCancel(acfiInterval.pauseTimeout);
+    acfiInterval.safeTimeoutCancel(acfiInterval.miniTimeout);
+    acfiInterval.safeCancel(acfiInterval.continueInterval);
+    acfiInterval.initInterval = null;
+    acfiInterval.continueInterval = null;
+    acfiInterval.pauseTimeout = null;
+    acfiInterval.stopInterval = true;
     $rootScope.$broadcast("onStopInterval");
   };
 
 
-  intervalManager.continueAnimationInterval = function(){
-    intervalManager.pauseTimeout = null;
-    intervalManager.miniTimeout = $timeout(function () {
-      if(intervalManager.inFocus === true){
+  acfiInterval.continueAnimationInterval = function(){
+    acfiInterval.pauseTimeout = null;
+    acfiInterval.miniTimeout = $timeout(function () {
+      if(acfiInterval.inFocus === true){
         $rootScope.$broadcast("onSlowContinueInterval");
       }
-      intervalManager.continueInterval = $interval(function () {
-        if(intervalManager.inFocus === true){
+      acfiInterval.continueInterval = $interval(function () {
+        if(acfiInterval.inFocus === true){
           $rootScope.$broadcast("onContinueInterval");
         }
-      }, intervalManager.intervalTime);
+      }, acfiInterval.intervalTime);
     }, 120);
   };
 
 
-  intervalManager.pauseAnimationInterval = function (){
+  acfiInterval.pauseAnimationInterval = function (){
 
-    intervalManager.safeCancel(intervalManager.continueInterval);
-    intervalManager.safeCancel(intervalManager.initInterval);
-    intervalManager.initInterval = null;
-    intervalManager.continueInterval = null;
+    acfiInterval.safeCancel(acfiInterval.continueInterval);
+    acfiInterval.safeCancel(acfiInterval.initInterval);
+    acfiInterval.initInterval = null;
+    acfiInterval.continueInterval = null;
 
-    intervalManager.pauseTimeout = $timeout(function () {
-      if(intervalManager.inFocus === true){
-        intervalManager.loopIndex += 1;
-        if(intervalManager.loopIndex >= intervalManager.maxLoopIndex){
-          intervalManager.loopIndex = 0;
+    acfiInterval.pauseTimeout = $timeout(function () {
+      if(acfiInterval.inFocus === true){
+        acfiInterval.loopIndex += 1;
+        if(acfiInterval.loopIndex >= acfiInterval.maxLoopIndex){
+          acfiInterval.loopIndex = 0;
         }
-        $rootScope.$broadcast("onPauseInterval", intervalManager.loopIndex);
-        intervalManager.continueAnimationInterval();
+        $rootScope.$broadcast("onPauseInterval", acfiInterval.loopIndex);
+        acfiInterval.continueAnimationInterval();
       }else{
         // Important condition: retry after the timeout if no focus
         // main reason of glitch
-        intervalManager.pauseAnimationInterval();
+        acfiInterval.pauseAnimationInterval();
       }
 
-    }, intervalManager.pauseTimeoutTime);
+    }, acfiInterval.pauseTimeoutTime);
 
   };
 
 
-  intervalManager.safeCancel = function(interval){
+  acfiInterval.safeCancel = function(interval){
     if(interval !== null){ $interval.cancel(interval); }
   };
 
 
-  intervalManager.safeTimeoutCancel = function(timeout){
+  acfiInterval.safeTimeoutCancel = function(timeout){
     if(timeout !== null){ $timeout.cancel(timeout); }
   };
 
-  return intervalManager;
+  return acfiInterval;
 }]);
 
 
@@ -633,13 +641,13 @@ acfi.factory('acfi-intervalManager', [ '$q', '$rootScope', '$interval', '$timeou
 
 // Utility service for the input field
 
-acfi.factory('acfi-writerManager', function () {
+acfi.factory('acfiCaret', function () {
 
-  var writerManager = {};
-  writerManager.direction = -1;
-  writerManager.lastOffset = 0;
+  var acfiCaret = {};
+  acfiCaret.direction = -1;
+  acfiCaret.lastOffset = 0;
 
-  writerManager.charDir = {
+  acfiCaret.charDir = {
     lastDir : null,
     check : function(s){
       var ltrChars = 'A-Za-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02B8\u0300-\u0590\u0800-\u1FFF'+'\u2C00-\uFB1C\uFDFE-\uFE6F\uFEFD-\uFFFF',
@@ -654,39 +662,39 @@ acfi.factory('acfi-writerManager', function () {
   };
 
 
-  writerManager.setDirection = function(e){
+  acfiCaret.setDirection = function(e){
     var d = 0;
     if( e.keyCode === 37 ){ d = -1; }
     if( e.keyCode === 39 ){ d = 1; }
-    if(e.type === 'mousedown'){ writerManager.lastOffset = e.clientX; }
-    if(e.type === 'mouseup'){ d = e.clientX < writerManager.lastOffset ? -1 : 1; }
-    writerManager.direction = d;
+    if(e.type === 'mousedown'){ acfiCaret.lastOffset = e.clientX; }
+    if(e.type === 'mouseup'){ d = e.clientX < acfiCaret.lastOffset ? -1 : 1; }
+    acfiCaret.direction = d;
   };
 
 
-  writerManager.setCaret = function(element, up, e){
-    writerManager.setDirection(e);
-    var pos = writerManager.getCaretPosition(element);
-    if( writerManager.charDir.lastDir === 'rtl' ){
+  acfiCaret.setCaret = function(element, up, e){
+    acfiCaret.setDirection(e);
+    var pos = acfiCaret.getCaretPosition(element);
+    if( acfiCaret.charDir.lastDir === 'rtl' ){
       pos = element.value.length - pos; // BIDI support
     }
     if(up === true){
       return pos;
     } else {
-      return pos + writerManager.direction;
+      return pos + acfiCaret.direction;
     }
   };
 
 
-  writerManager.getCaretPosition = function(element){
-    var caretPos, direction = writerManager.direction || 1;
+  acfiCaret.getCaretPosition = function(element){
+    var caretPos, direction = acfiCaret.direction || 1;
     if( element.selectionStart || element.selectionStart === '0' ){
       caretPos = direction === -1 ? element.selectionStart : element.selectionEnd;
     }
     return caretPos || 0;
   };
 
-  return writerManager;
+  return acfiCaret;
 });
 
 })(window, document);

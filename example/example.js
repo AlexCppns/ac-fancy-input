@@ -41,10 +41,10 @@ myApp.filter("suggestions", function(){
 });
 
 
-myApp.controller('AcExampleController', [ '$scope', 'acfiData', 'acfi-intervalManager', '$filter', 'sampleData', 'sampleMessage' , function($scope, AcfiData, intervalManager, $filter, sampleData, sampleMessage){
+myApp.controller('AcExampleController', [ '$scope', 'acfiData', 'acfiInterval', '$filter', 'sampleData', 'sampleMessage' , function($scope, AcfiData, AcfiInterval, $filter, sampleData, sampleMessage){
 
   $scope.AcfiData = AcfiData;
-  $scope.intervalManager = intervalManager;
+  $scope.AcfiInterval = AcfiInterval;
   $scope.sampleData = sampleData;
 
   $scope.AcfiData.suggestion_types = [
@@ -55,7 +55,7 @@ myApp.controller('AcExampleController', [ '$scope', 'acfiData', 'acfi-intervalMa
 
   $scope.AcfiData.initText(sampleMessage.init_string, sampleMessage.pause_string, sampleMessage.continue_array);
 
-  $scope.intervalManager.startAnimationInterval();
+  $scope.AcfiInterval.startAnimationInterval();
 
   $scope.$on("onQuerySuggestions", function (event, query) {
     $scope.AcfiData.suggestion_types[0].contents = $filter('suggestions')($scope.sampleData.fruits, query);
