@@ -96,7 +96,7 @@ myApp.controller('AcExampleController', [ '$scope', 'acfiData', 'acfiInterval', 
     $scope.AcfiData.display = false;
   });
 
-  
+
   $scope.myViewMoreAction = function(){
     alert('In this action, you could open a modal window for instance to see all the suggestions');
     $scope.AcfiData.display = false;
