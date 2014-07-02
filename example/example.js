@@ -20,13 +20,15 @@ myApp.factory('sampleMessage', [ function(){
 
   // example of message strings for the searchbox animation
   // the + and - characters are used to control the presence or absence of color
+  var init_string = "+This is an example of what you can do with the fancy input module";
   return {
-    init_string: "+This is a example of fancy input",
+    init_string: init_string,
     pause_string: "",
     continue_array: [
-      "This is a example of fancy input",
-      "You can customize the content the way you want",
-      "And even change the -c+o-l+o-r+s"
+      init_string,
+      "You can customize this text animation",
+      "and even mess with the -c+o-l+o-r+s",
+      "Click and press any key to try out the -typeahead feature"
     ]
   };
 }]);
@@ -55,6 +57,11 @@ myApp.controller('AcExampleController', [ '$scope', 'acfiData', 'acfiInterval', 
   $scope.sampleData = sampleData;
 
 
+
+  // The text font is rescaled to fit the input box by default when typing
+  // but there is added control for the animation
+  $scope.AcfiData.resizeAnimation = true;  // default: false
+
   // initializing the suggestions types
   // klass is the css class used in the html, contents is an array of hash
   $scope.AcfiData.suggestion_types = [
@@ -62,6 +69,7 @@ myApp.controller('AcExampleController', [ '$scope', 'acfiData', 'acfiInterval', 
     { "klass": "vegetables", "contents": [], "name": 'Vegetables' }
   ];
 
+  // Define the text that will be used in the animation
   $scope.AcfiData.initText(sampleMessage.init_string, sampleMessage.pause_string, sampleMessage.continue_array);
 
   // For now, the animation start is done in 2 steps for more control.
@@ -88,8 +96,7 @@ myApp.controller('AcExampleController', [ '$scope', 'acfiData', 'acfiInterval', 
     $scope.AcfiData.display = false;
   });
 
-
-
+  
   $scope.myViewMoreAction = function(){
     alert('In this action, you could open a modal window for instance to see all the suggestions');
     $scope.AcfiData.display = false;

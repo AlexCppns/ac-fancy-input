@@ -28,6 +28,7 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiInterval', function($ti
   acfiData.actionTimeout = {};
   acfiData.init_string = '';
   acfiData.selected = {};
+  acfiData.resizeAnimation = false;
 
 
   acfiData.initText = function(_Init,_Pause,_Continue){
@@ -49,10 +50,11 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiInterval', function($ti
   acfiData.checkFontThreshold = function(){
     var font_style = {};
     for(var i = 0; i < acfiData.font_thresholds.length; i++){
-      if(acfiData.string.length < acfiData.font_thresholds[i][0]){
+      if(acfiData.data_before.length + acfiData.data_after.length < acfiData.font_thresholds[i][0]){
         font_style = { 'font-size': (acfiData.font_thresholds[i][1] + "em") };
       }
     }
+
     acfiData.font_style = angular.copy(font_style);
   };
 
@@ -61,6 +63,7 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiInterval', function($ti
     if(acfiData.init_array.length > 0){
       var s = acfiData.init_array.pop();
       acfiData.data_before.push(acfiData.fillChar(s));
+      if(acfiData.resizeAnimation===true){ acfiData.checkFontThreshold(); }
     }else{
       if(AcfiInterval.inFocus === true){
         AcfiInterval.pauseAnimationInterval();
@@ -84,6 +87,7 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiInterval', function($ti
     if(acfiData.tmp_str.length > 0 ){
       var s = acfiData.tmp_str.pop();
       acfiData.data_before.push(acfiData.fillChar(s));
+      if(acfiData.resizeAnimation===true){ acfiData.checkFontThreshold(); }
     }else{
       AcfiInterval.pauseAnimationInterval();
     }
