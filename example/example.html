@@ -11,9 +11,9 @@
 
 <body class="ng-cloak">
   <div ng-controller="AcExampleController">
-    <div class="main-search" data-ng-class="{ focus: $root.searchFieldIsFocus || AcfiData.display }" data-ng-controller="acfiSearchboxController">
-      <input ac-fancy-input animate="allowAnimation">
-    </div>
+
+    <input class="main-search" ac-fancy-input ac-animate="allowAnimation">
+
     <div ac-fancy-input-suggestions ac-suggestion-count="8" ac-view-more-action="myViewMoreAction">
       <div acfi-content-template>
         <div>{{content.string}} - </div>

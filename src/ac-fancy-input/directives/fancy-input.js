@@ -34,6 +34,7 @@ acfi.controller('acfiSearchboxController', [ '$scope', '$window', 'acfiInterval'
 
 
   $scope.$on('onStopInterval', function(){
+
     $scope.AcfiData.string = "";
     $scope.AcfiData.data_before = [];
   });
@@ -46,7 +47,9 @@ acfi.controller('acfiSearchboxController', [ '$scope', '$window', 'acfiInterval'
 
 acfi.directive('acFancyInput', [ '$rootScope', 'acfiCaret', "$timeout", 'acfiData', function($rootScope, acfiCaret, $timeout, AcfiData) {
 
-  var template = '<div><input tabindex="2" id="inputAnimation" class="anim-field" type="text" maxlength="70" spellcheck="false"';
+  var template = '<div data-ng-class="{ focus: $root.searchFieldIsFocus || AcfiData.display }">' +
+                 '<div ng-transclude></div><div class="acfi-before" acfi-before></div>' +
+                 '<input tabindex="2" id="inputAnimation" class="anim-field" type="text" maxlength="70" spellcheck="false"';
   template += ' data-ng-class="{\'no-opacity\': AcfiData.animating == false}")';
   template += ' data-ng-style="AcfiData.font_style"';
   template += ' data-ng-model="AcfiData.string">';
@@ -54,21 +57,27 @@ acfi.directive('acFancyInput', [ '$rootScope', 'acfiCaret', "$timeout", 'acfiDat
   template += '<span data-ng-repeat="char in AcfiData.data_before track by $index" data-ng-class="{colored: char[0] == true}">{{char[1]}}</span>';
   template += '<b class="caret" data-ng-hide="$root.hideCaret">&#8203;</b>';
   template += '<span data-ng-repeat="char_2 in AcfiData.data_after track by $index">{{char_2}}</span>';
-  template += '</div></div>';
+  template += '</div>';
+  template += '<span acfi-after></span>';
+  template += '</div>';
 
   return {
     restrict: "A",
     template: template,
     replace: true,
+    transclude: true,
+    controller: 'acfiSearchboxController',
     scope: {
-     animate: "=animate"
+     acAnimate: "=acAnimate"
+
     },
 
     link: function (scope, element, attrs) {
 
       $rootScope.searchFieldIsFocus = false;
 
-      var input = element.children(1);
+      var input = angular.element(element.children()[2]);
+
       scope.filterTextTimeout = {};
       scope.acfiCaret = acfiCaret;
       scope.AcfiData = AcfiData;
@@ -81,13 +90,14 @@ acfi.directive('acFancyInput', [ '$rootScope', 'acfiCaret', "$timeout", 'acfiDat
 
       input.on('blur', function() {
         scope.$apply(function() {
-          scope.AcfiData.decideToStart(scope.animate);
+          scope.AcfiData.decideToStart(scope.acAnimate);
           $rootScope.searchFieldIsFocus = false;
         });
       });
 
       input.on('focus', function() {
         scope.$apply(function() {
+
           scope.AcfiData.decideToStop();
           $rootScope.searchFieldIsFocus = true;
         });
@@ -132,6 +142,39 @@ acfi.directive('acFancyInput', [ '$rootScope', 'acfiCaret', "$timeout", 'acfiDat
     }
   };
 }]);
+
+
+var acfi_input_template_directive = function(string){
+  return {
+    transclude: true,
+    restrict: 'A',
+    require: '^acFancyInput',
+    link: function(s, element, a, controller, transclude){
+      element.remove();
+      controller['renderAcfi'+string+'Template'] = transclude;
+    }
+  };
+};
+
+var acfi_input_transclude_directive = function(string){
+  return {
+    restrict: 'A',
+    require: '^acFancyInput',
+    link: function(scope, element, a, controller){
+      if(controller['renderAcfi'+string+'Template']!==undefined){
+        controller['renderAcfi'+string+'Template'](scope, function(dom){
+          element.append(dom);
+        });
+      }
+    }
+  };
+};
+
+acfi.directive('acfiBeforeTemplate', function(){ return acfi_input_template_directive('Before'); });
+acfi.directive('acfiBefore', function(){ return acfi_input_transclude_directive('Before'); });
+
+acfi.directive('acfiAfterTemplate', function(){ return acfi_input_template_directive('After'); });
+acfi.directive('acfiAfter', function(){ return acfi_input_transclude_directive('After'); });
 
 
 acfi.directive('acfiResetDisplay', ['$rootScope', '$window', function($rootScope, $window){

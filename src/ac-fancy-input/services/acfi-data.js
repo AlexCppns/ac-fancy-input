@@ -16,8 +16,8 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiInterval', function($ti
   acfiData.animating = true;
   acfiData.colored_text = true;
   acfiData.watching = false;
-  acfiData.font_style = { 'font-size': "2.75em" };
-  acfiData.font_thresholds = [ [2000, 1.75], [50, 2.05], [45, 2.3], [40, 2.55], [35, 2.75] ];
+  acfiData.font_style = { 'font-size': "2.70em" };
+  acfiData.font_thresholds = [ [2000, 1.75], [50, 2.05], [45, 2.3], [40, 2.55], [35, 2.70] ];
   acfiData.noResultDisplay = false;
   acfiData.suggestionLimit = 2;
   acfiData.suggestionDisplayLimit = 6;
@@ -153,16 +153,17 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiInterval', function($ti
   acfiData.selectContent = function(){
     acfiData.deselectAll();
     var current_index = 0;
+
     select_loop:
-        for(var i = 0; i < acfiData.suggestion_types.length; i++){
-          for(var j = 0; j < acfiData.suggestion_types[i].contents.length; j++){
-            if(current_index === acfiData.selected_index){
-              acfiData.selectSuggestion(i, j);
-              break select_loop;
-            }
-            current_index += 1;
-          }
+    for(var i = 0; i < acfiData.suggestion_types.length; i++){
+      for(var j = 0; j < acfiData.suggestion_types[i].contents.length; j++){
+        if(current_index === acfiData.selected_index){
+          acfiData.selectSuggestion(i, j);
+          break select_loop;
         }
+        current_index += 1;
+      }
+    }
   };
 
 
@@ -218,6 +219,7 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiInterval', function($ti
     }
     if(acfiData.animating === true){
       acfiData.animating = false;
+      console.log("stopping animation interval");
       AcfiInterval.stopAnimationInterval();
     }
   };
