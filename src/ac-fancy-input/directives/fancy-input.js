@@ -21,22 +21,22 @@ acfi.controller('acfiSearchboxController', [ '$scope', '$window', 'acfiIntervalI
 
 
   $scope.$on('onInitInterval', function (event, id) {
-    if(id == $scope.acId){ $scope.AcfiData.init(); }
+    if(id === $scope.acId){ $scope.AcfiData.init(); }
   });
 
 
   $scope.$on('onPauseInterval', function(event, loopIndex, id){
-    if(id == $scope.acId){ $scope.AcfiData.pause(loopIndex); }
+    if(id === $scope.acId){ $scope.AcfiData.pause(loopIndex); }
   });
 
 
   $scope.$on('onContinueInterval', function(event, id){
-    if(id == $scope.acId){ $scope.AcfiData.continueC(); }
+    if(id === $scope.acId){ $scope.AcfiData.continueC(); }
   });
 
 
   $scope.$on('onStopInterval', function(event, id){
-    if(id == $scope.acId){
+    if(id === $scope.acId){
       $scope.AcfiData.string = "";
       $scope.AcfiData.data_before = [];
     }
@@ -77,8 +77,6 @@ acfi.directive('acFancyInput', [ '$rootScope', 'acfiCaret', "$timeout", 'acfiDat
 
     link: function (scope, element, attrs) {
 
-      $rootScope.searchFieldIsFocus = false;
-
       var input = angular.element(element.children()[2]);
 
       scope.filterTextTimeout = {};
@@ -94,7 +92,7 @@ acfi.directive('acFancyInput', [ '$rootScope', 'acfiCaret', "$timeout", 'acfiDat
       input.on('blur', function() {
         scope.$apply(function() {
           scope.AcfiData.decideToStart(scope.acAnimate);
-          $rootScope.searchFieldIsFocus = false;
+          scope.AcfiData.searchFieldIsFocus = false;
         });
       });
 
@@ -102,7 +100,7 @@ acfi.directive('acFancyInput', [ '$rootScope', 'acfiCaret', "$timeout", 'acfiDat
         scope.$apply(function() {
 
           scope.AcfiData.decideToStop();
-          $rootScope.searchFieldIsFocus = true;
+          scope.AcfiData.searchFieldIsFocus = true;
         });
       });
 

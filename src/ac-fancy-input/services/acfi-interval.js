@@ -147,7 +147,7 @@ acfi.factory('acfiInterval', [ '$q', '$rootScope', '$interval', '$timeout', func
     this.safeCancel(this.initInterval);
     this.safeTimeoutCancel(this.pauseTimeout);
     this.safeTimeoutCancel(this.miniTimeout);
-    this.safeCancel(acfiInterval.continueInterval);
+    this.safeCancel(this.continueInterval);
     this.initInterval = null;
     this.continueInterval = null;
     this.pauseTimeout = null;

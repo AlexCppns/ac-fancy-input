@@ -29,6 +29,7 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiIntervalInstance', func
     this.init_string = '';
     this.selected = {};
     this.resizeAnimation = false;
+    this.searchFieldIsFocus = false;
     this.acfiInterval = AcfiIntervalInstance.create(opts.id);
   };
 
@@ -227,9 +228,13 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiIntervalInstance', func
 
   var decideToStart = function(extra_condition){
     if(extra_condition === undefined){ extra_condition = true; }
+    var data = this;
     $rootScope.hideCaret = false;
+    console.log(extra_condition);
+    console.log(this.string);
+    console.log(this.animating);
     if(this.animating === false && this.string === "" && extra_condition){
-      var data =this;
+
       this.actionTimeout = $timeout(function(){
         data.reset();
         $rootScope.$broadcast("onResetInterval", data.id);

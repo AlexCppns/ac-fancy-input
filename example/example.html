@@ -10,11 +10,25 @@
 </head>
 
 <body class="ng-cloak">
-  <div ng-controller="AcExampleController">
+  <div style="min-height: 500px" ng-controller="AcExampleController">
 
     <div class="main-search" ac-id="1" ac-fancy-input ac-animate="allowAnimation"></div>
 
     <div ac-fancy-input-suggestions ac-id="1" ac-suggestion-count="8" ac-view-more-action="myViewMoreAction">
+      <div acfi-content-template>
+        <div>{{content.string}} - </div>
+        <div>Color: {{content.color}}</div>
+      </div>
+      <div acfi-view-more-template>View More</div>
+      <div acfi-no-results-template>
+        <span>No results for "<span>{{ AcfiData.string }}</span>"</span>
+      </div>
+    </div>
+  </div>
+  <div style="min-height: 500px" ng-controller="AcExampleControllerTwo">
+    <div  class="main-search" ac-id="2" ac-fancy-input ac-animate="allowAnimation"></div>
+
+    <div ac-fancy-input-suggestions ac-id="2" ac-suggestion-count="8" ac-view-more-action="myViewMoreAction">
       <div acfi-content-template>
         <div>{{content.string}} - </div>
         <div>Color: {{content.color}}</div>
