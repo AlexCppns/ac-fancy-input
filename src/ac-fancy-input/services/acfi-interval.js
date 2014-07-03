@@ -107,8 +107,6 @@
 
 acfi.factory('acfiInterval', [ '$q', '$rootScope', '$interval', '$timeout', function ($q, $rootScope, $interval, $timeout) {
 
-
-
   var acfiInterval = function(id){
     this.id = id;
     this.intervalTime = 90;
@@ -135,7 +133,7 @@ acfi.factory('acfiInterval', [ '$q', '$rootScope', '$interval', '$timeout', func
       this.initInterval = $interval(function () {
         if(acfi_i.inFocus === true){
           // only refresh state if in focus
-          $rootScope.$broadcast("onInitInterval");
+          $rootScope.$broadcast("onInitInterval", acfi_i.id);
         }
       }, this.intervalTime);
       this.antiKonami = true;
@@ -154,7 +152,7 @@ acfi.factory('acfiInterval', [ '$q', '$rootScope', '$interval', '$timeout', func
     this.continueInterval = null;
     this.pauseTimeout = null;
     this.stopInterval = true;
-    $rootScope.$broadcast("onStopInterval");
+    $rootScope.$broadcast("onStopInterval", this.id);
   };
 
 
@@ -163,11 +161,11 @@ acfi.factory('acfiInterval', [ '$q', '$rootScope', '$interval', '$timeout', func
     this.pauseTimeout = null;
     this.miniTimeout = $timeout(function () {
       if(acfi_i.inFocus === true){
-        $rootScope.$broadcast("onSlowContinueInterval");
+        $rootScope.$broadcast("onSlowContinueInterval", acfi_i.id);
       }
       acfi_i.continueInterval = $interval(function () {
         if(acfi_i.inFocus === true){
-          $rootScope.$broadcast("onContinueInterval");
+          $rootScope.$broadcast("onContinueInterval", acfi_i.id);
         }
       }, acfi_i.intervalTime);
     }, 120);
@@ -187,12 +185,12 @@ acfi.factory('acfiInterval', [ '$q', '$rootScope', '$interval', '$timeout', func
         if(acfi_i.loopIndex >= acfi_i.maxLoopIndex){
           acfi_i.loopIndex = 0;
         }
-        $rootScope.$broadcast("onPauseInterval", acfi_i.loopIndex);
-        this.continueAnimationInterval();
+        $rootScope.$broadcast("onPauseInterval", acfi_i.loopIndex, acfi_i.id);
+        acfi_i.continueAnimationInterval();
       }else{
         // Important condition: retry after the timeout if no focus
         // main reason of glitch
-        this.pauseAnimationInterval();
+        acfi_i.pauseAnimationInterval();
       }
 
     }, this.pauseTimeoutTime);
@@ -212,15 +210,35 @@ acfi.factory('acfiInterval', [ '$q', '$rootScope', '$interval', '$timeout', func
 
 
   acfiInterval.prototype = {
-    startAnimationInterval: startAnimationInterval.bind(this),
-    stopAnimationInterval: stopAnimationInterval.bind(this),
-    continueAnimationInterval: continueAnimationInterval.bind(this),
-    pauseAnimationInterval: pauseAnimationInterval.bind(this),
-    safeCancel: safeCancel.bind(this),
-    safeTimeoutCancel: safeTimeoutCancel.bind(this),
+    startAnimationInterval: startAnimationInterval,
+    stopAnimationInterval: stopAnimationInterval,
+    continueAnimationInterval: continueAnimationInterval,
+    pauseAnimationInterval: pauseAnimationInterval,
+    safeCancel: safeCancel,
+    safeTimeoutCancel: safeTimeoutCancel
   };
 
-
-
   return acfiInterval;
+}]);
+
+
+acfi.factory('acfiIntervalInstance', [ "acfiInterval", function(acfiInterval){
+
+  var acfiIntervalInstance = { data: {} };
+
+  acfiIntervalInstance.create = function(id){
+    if(acfiIntervalInstance.data[id]===undefined){
+      acfiIntervalInstance.data[id] = new acfiInterval(id);
+    }else{
+      console.log('Error: acfiInterval Instance already exists with the id: '+id);
+    }
+    return acfiIntervalInstance.data[id];
+  };
+
+  acfiIntervalInstance.get = function(id){
+    return acfiIntervalInstance.data[id];
+  };
+
+  return acfiIntervalInstance;
+
 }]);

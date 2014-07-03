@@ -40,7 +40,9 @@ myApp.filter("suggestions", function(){
 
     var filtered_s = [];
     for(var k = 0; k < suggestions.length;k++){
-      if(suggestions[k].color.indexOf(search.toLowerCase()) !== -1 || suggestions[k].string.indexOf(search.toLowerCase()) !== -1 ){
+      console.log(search);
+      console.log(suggestions[k]);
+      if(suggestions[k].color.toLowerCase().indexOf(search.toLowerCase()) !== -1 || suggestions[k].string.toLowerCase().indexOf(search.toLowerCase()) !== -1 ){
         filtered_s.push(suggestions[k]);
       }
     }
@@ -49,11 +51,11 @@ myApp.filter("suggestions", function(){
 });
 
 
-myApp.controller('AcExampleController', [ '$scope', 'acfiData', 'acfiInterval', '$filter', 'sampleData', 'sampleMessage' ,
-                                  function($scope ,  AcfiData,   AcfiInterval ,  $filter ,  sampleData ,  sampleMessage){
+myApp.controller('AcExampleController', [ '$scope', 'acfiDataInstance', 'acfiIntervalInstance', '$filter', 'sampleData', 'sampleMessage' ,
+                                  function($scope ,  AcfiDataInstance,   AcfiIntervalInstance ,  $filter ,  sampleData ,  sampleMessage){
 
-  $scope.AcfiData = AcfiData;
-  $scope.AcfiInterval = AcfiInterval;
+  $scope.AcfiData = AcfiDataInstance.get(1);
+  $scope.AcfiInterval = AcfiIntervalInstance.get(1);
   $scope.sampleData = sampleData;
 
 
@@ -69,6 +71,8 @@ myApp.controller('AcExampleController', [ '$scope', 'acfiData', 'acfiInterval', 
     { "klass": "vegetables", "contents": [], "name": 'Vegetables' }
   ];
 
+
+
   // Define the text that will be used in the animation
   $scope.AcfiData.initText(sampleMessage.init_string, sampleMessage.pause_string, sampleMessage.continue_array);
 
@@ -80,6 +84,7 @@ myApp.controller('AcExampleController', [ '$scope', 'acfiData', 'acfiInterval', 
   // method called when typing
   // it should typically use the 'query' parameter to do a search and then fill the suggestion box
   $scope.$on("onQuerySuggestions", function (event, query) {
+    console.log(query);
     $scope.AcfiData.suggestion_types[0].contents = $filter('suggestions')($scope.sampleData.fruits, query);
     $scope.AcfiData.suggestion_types[1].contents = $filter('suggestions')($scope.sampleData.vegetables, query);
     $scope.AcfiData.display = true;

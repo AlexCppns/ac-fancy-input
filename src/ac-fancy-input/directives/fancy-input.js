@@ -2,12 +2,14 @@
 
 // ************************************** controller definition for search-box ************************************** //
 
-acfi.controller('acfiSearchboxController', [ '$scope', '$window', 'acfiInterval', 'acfiData', function($scope, $window, AcfiInterval, AcfiData) {
+acfi.controller('acfiSearchboxController', [ '$scope', '$window', 'acfiIntervalInstance', 'acfiDataInstance', function($scope, $window, AcfiIntervalInstance, AcfiDataInstance) {
+
+
 
   $window.focus();
 
-  $scope.AcfiData = AcfiData;
-  $scope.AcfiInterval = AcfiInterval;
+  $scope.AcfiData = AcfiDataInstance.get($scope.acId);
+  $scope.AcfiInterval = AcfiIntervalInstance.get($scope.acId);
 
   $window.onblur = function (){
     $scope.AcfiInterval.inFocus = false;
@@ -18,25 +20,26 @@ acfi.controller('acfiSearchboxController', [ '$scope', '$window', 'acfiInterval'
   };
 
 
-  $scope.$on('onInitInterval', function () {
-    $scope.AcfiData.init();
+  $scope.$on('onInitInterval', function (event, id) {
+    if(id == $scope.acId){ $scope.AcfiData.init(); }
   });
 
 
-  $scope.$on('onPauseInterval', function(event, loopIndex){
-    $scope.AcfiData.pause(loopIndex);
+  $scope.$on('onPauseInterval', function(event, loopIndex, id){
+    if(id == $scope.acId){ $scope.AcfiData.pause(loopIndex); }
   });
 
 
-  $scope.$on('onContinueInterval', function(){
-    $scope.AcfiData.continueC();
+  $scope.$on('onContinueInterval', function(event, id){
+    if(id == $scope.acId){ $scope.AcfiData.continueC(); }
   });
 
 
-  $scope.$on('onStopInterval', function(){
-
-    $scope.AcfiData.string = "";
-    $scope.AcfiData.data_before = [];
+  $scope.$on('onStopInterval', function(event, id){
+    if(id == $scope.acId){
+      $scope.AcfiData.string = "";
+      $scope.AcfiData.data_before = [];
+    }
   });
 }]);
 
@@ -45,7 +48,7 @@ acfi.controller('acfiSearchboxController', [ '$scope', '$window', 'acfiInterval'
 
 // ******************************************* fancy input directives *********************************************** //
 
-acfi.directive('acFancyInput', [ '$rootScope', 'acfiCaret', "$timeout", 'acfiData', function($rootScope, acfiCaret, $timeout, AcfiData) {
+acfi.directive('acFancyInput', [ '$rootScope', 'acfiCaret', "$timeout", 'acfiDataInstance', function($rootScope, acfiCaret, $timeout, AcfiDataInstance) {
 
   var template = '<div data-ng-class="{ focus: $root.searchFieldIsFocus || AcfiData.display }">' +
                  '<div ng-transclude></div><div class="acfi-before" acfi-before></div>' +
@@ -68,8 +71,8 @@ acfi.directive('acFancyInput', [ '$rootScope', 'acfiCaret', "$timeout", 'acfiDat
     transclude: true,
     controller: 'acfiSearchboxController',
     scope: {
-     acAnimate: "=acAnimate"
-
+     acAnimate: "=acAnimate",
+     acId: "=acId"
     },
 
     link: function (scope, element, attrs) {
@@ -80,7 +83,7 @@ acfi.directive('acFancyInput', [ '$rootScope', 'acfiCaret', "$timeout", 'acfiDat
 
       scope.filterTextTimeout = {};
       scope.acfiCaret = acfiCaret;
-      scope.AcfiData = AcfiData;
+      scope.AcfiData = AcfiDataInstance.get(scope.acId);
 
       input.bind("keyup select mouseup cut paste", function (e) {
         if(e.keyCode !== 13){ scope.processBinding(e, this); }
@@ -106,12 +109,12 @@ acfi.directive('acFancyInput', [ '$rootScope', 'acfiCaret', "$timeout", 'acfiDat
 
       input.bind("keydown", function(e){
         if(e.keyCode === 13){
-          $rootScope.$broadcast('onSubmitQuery');
+          $rootScope.$broadcast('onSubmitQuery', scope.acId);
         }else{
           if (e.keyCode === 38 || e.keyCode === 40) {
             var direction = +1;
             if (e.keyCode === 38){ direction = -1; }
-            $rootScope.$broadcast("onKeyUpAndDown", direction);
+            $rootScope.$broadcast("onKeyUpAndDown", direction, scope.acId);
           }else{
             // reset selection if typing
             scope.$apply(function () { scope.AcfiData.selected_index = 10000; });
@@ -125,7 +128,7 @@ acfi.directive('acFancyInput', [ '$rootScope', 'acfiCaret', "$timeout", 'acfiDat
         scope.$apply(function () {
           var input_str = input.val().replace(/\s+/g, "\u00A0").split("").reverse();
           var pos = scope.acfiCaret.setCaret(el, true, e);
-          scope.AcfiData.processBinding(input_str,pos,input.val());
+          scope.AcfiData.processBinding(input_str, pos, input.val());
         });
       };
 
@@ -135,7 +138,7 @@ acfi.directive('acFancyInput', [ '$rootScope', 'acfiCaret', "$timeout", 'acfiDat
           if(scope.filterTextTimeout){ $timeout.cancel(scope.filterTextTimeout); }
           scope.filterTextTimeout = $timeout(function() {
             scope.AcfiData.checkFontThreshold();
-            $rootScope.$broadcast("onQuerySuggestions", value);
+            $rootScope.$broadcast("onQuerySuggestions", value, scope.acId);
           }, 140);
         }
       });
@@ -176,14 +179,4 @@ acfi.directive('acfiBefore', function(){ return acfi_input_transclude_directive(
 acfi.directive('acfiAfterTemplate', function(){ return acfi_input_template_directive('After'); });
 acfi.directive('acfiAfter', function(){ return acfi_input_transclude_directive('After'); });
 
-
-acfi.directive('acfiResetDisplay', ['$rootScope', '$window', function($rootScope, $window){
-  return {
-    link: function(scope, element){
-      var w = angular.element($window);
-      element.bind('click', function(e){ e.stopPropagation(); });
-      w.bind('click', function(e){ $rootScope.$broadcast("onCloseDisplay"); });
-    }
-  };
-}]);
 
