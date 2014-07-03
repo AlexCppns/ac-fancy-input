@@ -26,7 +26,23 @@ This requires angular version 1.2.9, later versions were not tested and earlier 
 
 ## Directives
 
+The main directive is:
 
+    <div ac-fancy-input ac-animate="true"></div>
+
+where `ac-animate` controls if the input is animated or not. This is used in combination with:
+
+
+    <div ac-fancy-input-suggestions>
+      <div acfi-content-template>
+        <div>{{content.string}}</div>
+        <div></div>
+      </div>
+    </div>
+
+where `acfi-content-template` is the template contained in the ng-repeat of the suggestion box.
+
+##
 
 
 
