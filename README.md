@@ -65,6 +65,13 @@ List of optional transclusion directives:
 
 ## Available Services
 
+`acfiInterval` is the input animation service. The following methods are used to start and stop the animation:
+
+- `startAnimationInterval()`: Starts the animation, not called by default.
+- `stopAnimationInterval()`: Stops the animation and resets it.
+
+`acfiData` contains most of the relevant data and methods used in this module. It is currently being refactored to allow multiple instances.
+
 
 
 
