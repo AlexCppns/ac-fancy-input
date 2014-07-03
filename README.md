@@ -1,6 +1,6 @@
 # ac-fancy-input
 
-(WARNING: Still in Alpha development)
+WARNING: Still in Alpha development. This package won't be stable until the limitations are removed and it is fully tested.
 
 Fancy input module for angularJS.
 Inspired from Jquery library: https://github.com/yairEO/fancyInput
@@ -47,11 +47,10 @@ This is used in combination with:
     <div ac-fancy-input-suggestions>
       <div acfi-content-template>
         <div>{{content.string}}</div>
-        <div></div>
       </div>
     </div>
 
-where `acfi-content-template` is the template contained in the `ng-repeat` block of the suggestion box.
+where `acfi-content-template` is the template contained in the `ng-repeat` block of the suggestion box. `content` is the only object you have access to in that scope, it can be edited via the service `acfiData` (now being refactored).
 
 List of optional attributes:
 
