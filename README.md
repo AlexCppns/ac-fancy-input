@@ -7,7 +7,7 @@ Inspired from Jquery library: https://github.com/yairEO/fancyInput
 
 ## Demo:
 
-Currently available on AlexCppns.github.io
+Currently available on http://AlexCppns.github.io
 
 
 ## Features:
