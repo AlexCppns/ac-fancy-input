@@ -413,15 +413,15 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiInterval', function($ti
     var current_index = 0;
 
     select_loop:
-        for(var i = 0; i < this.suggestion_types.length; i++){
-          for(var j = 0; j < this.suggestion_types[i].contents.length; j++){
-            if(current_index === this.selected_index){
-              this.selectSuggestion(i, j);
-              break select_loop;
-            }
-            current_index += 1;
-          }
+    for(var i = 0; i < this.suggestion_types.length; i++){
+      for(var j = 0; j < this.suggestion_types[i].contents.length; j++){
+        if(current_index === this.selected_index){
+          this.selectSuggestion(i, j);
+          break select_loop;
         }
+        current_index += 1;
+      }
+    }
   };
 
 

@@ -127,12 +127,13 @@ acfi.factory('acfiInterval', [ '$q', '$rootScope', '$interval', '$timeout', func
 
 
   var startAnimationInterval = function () {
+    var acfi_i = this;
     if(this.antiKonami === false){
       this.pauseTimeout = null;
       this.continueInterval = null;
 
       this.initInterval = $interval(function () {
-        if(this.inFocus === true){
+        if(acfi_i.inFocus === true){
           // only refresh state if in focus
           $rootScope.$broadcast("onInitInterval");
         }
@@ -158,54 +159,68 @@ acfi.factory('acfiInterval', [ '$q', '$rootScope', '$interval', '$timeout', func
 
 
   var continueAnimationInterval = function(){
+    var acfi_i = this;
     this.pauseTimeout = null;
     this.miniTimeout = $timeout(function () {
-      if(this.inFocus === true){
+      if(acfi_i.inFocus === true){
         $rootScope.$broadcast("onSlowContinueInterval");
       }
-      this.continueInterval = $interval(function () {
-        if(this.inFocus === true){
+      acfi_i.continueInterval = $interval(function () {
+        if(acfi_i.inFocus === true){
           $rootScope.$broadcast("onContinueInterval");
         }
-      }, this.intervalTime);
+      }, acfi_i.intervalTime);
     }, 120);
   };
 
 
   var pauseAnimationInterval = function (){
-
+    var acfi_i = this;
     this.safeCancel(this.continueInterval);
     this.safeCancel(this.initInterval);
     this.initInterval = null;
     this.continueInterval = null;
 
-    acfiInterval.pauseTimeout = $timeout(function () {
-      if(acfiInterval.inFocus === true){
-        acfiInterval.loopIndex += 1;
-        if(acfiInterval.loopIndex >= acfiInterval.maxLoopIndex){
-          acfiInterval.loopIndex = 0;
+    this.pauseTimeout = $timeout(function () {
+      if(acfi_i.inFocus === true){
+        acfi_i.loopIndex += 1;
+        if(acfi_i.loopIndex >= acfi_i.maxLoopIndex){
+          acfi_i.loopIndex = 0;
         }
-        $rootScope.$broadcast("onPauseInterval", acfiInterval.loopIndex);
-        acfiInterval.continueAnimationInterval();
+        $rootScope.$broadcast("onPauseInterval", acfi_i.loopIndex);
+        this.continueAnimationInterval();
       }else{
         // Important condition: retry after the timeout if no focus
         // main reason of glitch
-        acfiInterval.pauseAnimationInterval();
+        this.pauseAnimationInterval();
       }
 
-    }, acfiInterval.pauseTimeoutTime);
+    }, this.pauseTimeoutTime);
 
   };
 
 
-  acfiInterval.safeCancel = function(interval){
+  var safeCancel = function(interval){
     if(interval !== null){ $interval.cancel(interval); }
   };
 
 
-  acfiInterval.safeTimeoutCancel = function(timeout){
+  var safeTimeoutCancel = function(timeout){
     if(timeout !== null){ $timeout.cancel(timeout); }
   };
+
+
+
+  acfiInterval.prototype = {
+    startAnimationInterval: startAnimationInterval.bind(this),
+    stopAnimationInterval: stopAnimationInterval.bind(this),
+    continueAnimationInterval: continueAnimationInterval.bind(this),
+    pauseAnimationInterval: pauseAnimationInterval.bind(this),
+    safeCancel: safeCancel.bind(this),
+    safeTimeoutCancel: safeTimeoutCancel.bind(this),
+  };
+
+
 
   return acfiInterval;
 }]);
