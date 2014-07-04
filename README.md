@@ -63,7 +63,7 @@ List of optional transclusion directives:
 - `startAnimationInterval()`: Starts the animation, not called by default.
 - `stopAnimationInterval()`: Stops the animation and resets it.
 
-`acfiData` contains most of the relevant data and methods used in this module. Instances of that service can be obtained via the service `acfiDataInstance`.
+`acfiData` contains most of the relevant data and methods used in this module. Instances of `acfiData`  can be obtained via the service `acfiDataInstance`.
 
 
 ## Broadcast hooks
