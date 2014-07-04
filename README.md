@@ -88,3 +88,18 @@ Usage:
       // event triggered when the input field is updated
       // This is where the list of suggestions is updated
     });
+
+
+## To Do List
+
+- Increase test coverage.
+- Improve the demo.
+- `$broadcast` can become expensive => investigate better ways of handling actions.
+- Surface more configuration.
+- Use `$templateCache` for directives.
+
+## Contribute
+
+- For questions/bug reports/suggestions, [open a ticket](https://github.com/AlexCppns/ac-fancy-input/issues/new)
+- Fork it!
+- Do a pull request.
