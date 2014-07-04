@@ -33,9 +33,9 @@ This requires angular version 1.2.9, later versions were not tested and earlier 
 
 The main directive is:
 
-    <div ac-fancy-input ac-animate="true"></div>
+    <div ac-fancy-input="1" ac-animate="true"></div>
 
-where `ac-animate` controls if the input is animated or not.
+where `ac-animate` controls if the input is animated or not, `1` is a mandatory unique identifier of the input.
 
 List of optional transclusion directives:
 
@@ -44,13 +44,15 @@ List of optional transclusion directives:
 
 This is used in combination with:
 
-    <div ac-fancy-input-suggestions>
+    <div ac-fancy-input-suggestions="1">
       <div acfi-content-template>
         <div>{{content.string}}</div>
       </div>
     </div>
 
-where `acfi-content-template` is the template contained in the `ng-repeat` block of the suggestion box. `content` is the only object you have access to in that scope, it can be edited via the service `acfiData` (now being refactored).
+where `acfi-content-template` is the template contained in the `ng-repeat` block of the suggestion box.
+`content` is the only object you have access to in that scope, it can be edited via the service `acfiData` (now being refactored).
+`1` should match the identifier of the corresponding input.
 
 List of optional attributes:
 

@@ -26,6 +26,7 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiIntervalInstance', func
     this.lock_display = false;
     this.suggestion_types = [ { "klass": '', "contents": [], "name": '' } ];
     this.actionTimeout = {};
+    this.filterTextTimeout = {};
     this.init_string = '';
     this.selected = {};
     this.resizeAnimation = false;
@@ -230,11 +231,7 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiIntervalInstance', func
     if(extra_condition === undefined){ extra_condition = true; }
     var data = this;
     $rootScope.hideCaret = false;
-    console.log(extra_condition);
-    console.log(this.string);
-    console.log(this.animating);
     if(this.animating === false && this.string === "" && extra_condition){
-
       this.actionTimeout = $timeout(function(){
         data.reset();
         $rootScope.$broadcast("onResetInterval", data.id);
@@ -261,6 +258,17 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiIntervalInstance', func
     }
   };
 
+  var handleWatch = function(value){
+    var data = this;
+    if(this.watching === true){
+      if(this.filterTextTimeout){ $timeout.cancel(this.filterTextTimeout); }
+      this.filterTextTimeout = $timeout(function() {
+        data.checkFontThreshold();
+        $rootScope.$broadcast("onQuerySuggestions", value, data.id);
+      }, 250);
+    }
+  };
+
 
   acfiData.prototype = {
     initText: initText,
@@ -283,7 +291,8 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiIntervalInstance', func
     truncate: truncate,
     decideToStop: decideToStop,
     decideToStart: decideToStart,
-    processBinding: processBinding
+    processBinding: processBinding,
+    handleWatch: handleWatch
   };
 
 
@@ -296,17 +305,13 @@ acfi.factory('acfiDataInstance', [ 'acfiData', function(acfiData){
   var acfiDataInstance = { data: {} };
 
   acfiDataInstance.create = function(id){
-    if(acfiDataInstance.data[id] === undefined){
-      acfiDataInstance.data[id] = new acfiData({ id:id });
-    }else{
-      console.log('Error: acfiData Instance already exists with the id: ' + id);
-    }
+    acfiDataInstance.data[id] = new acfiData({ id:id });
     return acfiDataInstance.data[id];
   };
 
   acfiDataInstance.get = function(id){
     if(acfiDataInstance.data[id] === undefined){
-      acfiDataInstance.data[id] = new acfiData({ id:id });
+      acfiDataInstance.create(id);
     }
     return acfiDataInstance.data[id];
   };

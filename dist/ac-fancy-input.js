@@ -14,7 +14,7 @@ var acfi = angular.module('ac-fancy-input',[]);
 // To Do:
 // - Consistent object names and configuration
 // - Remove $rootScope usage where not needed
-// - Singleton => Multiple instances
+// - Full tests of the multiple instances
 // - Extract some of the css classes/Clean up the css
 // - Move/Remove application specific code
 
@@ -28,7 +28,7 @@ acfi.controller('acfiSuggestionsController',[ 'acfiDataInstance', '$scope','$q',
   $scope.AcfiData = AcfiDataInstance.get($scope.acId);
 
   $scope.$on("onKeyUpAndDown", function(event, direction, id){
-    if($scope.acId===id){
+    if($scope.acId === id){
       $scope.deferWatching().then(function(success){
         if(success){
           $scope.AcfiData.display = true;
@@ -39,7 +39,7 @@ acfi.controller('acfiSuggestionsController',[ 'acfiDataInstance', '$scope','$q',
   });
 
   $scope.$on("onCloseDisplay", function(event, id){
-    if($scope.acId===id){
+    if($scope.acId === id){
       // This apply is important (called from directive):
       $scope.$apply(function(){
         $scope.AcfiData.display = false;
@@ -99,7 +99,7 @@ acfi.directive('acFancyInputSuggestions', [ '$rootScope','$window', function($ro
     scope: {
       acfiViewMoreAction: '=acViewMoreAction',
       acSuggestionCount: '=?',
-      acId: '=acId'
+      acId: '=acFancyInputSuggestions'
     },
     template: template,
     transclude: true,
@@ -163,8 +163,6 @@ acfi.directive('acfiViewMore', function(){ return acfi_transclude_directive('Vie
 
 acfi.controller('acfiSearchboxController', [ '$scope', '$window', 'acfiIntervalInstance', 'acfiDataInstance', function($scope, $window, AcfiIntervalInstance, AcfiDataInstance) {
 
-
-
   $window.focus();
 
   $scope.AcfiData = AcfiDataInstance.get($scope.acId);
@@ -209,18 +207,22 @@ acfi.controller('acfiSearchboxController', [ '$scope', '$window', 'acfiIntervalI
 
 acfi.directive('acFancyInput', [ '$rootScope', 'acfiCaret', "$timeout", 'acfiDataInstance', function($rootScope, acfiCaret, $timeout, AcfiDataInstance) {
 
-  var template = '<div data-ng-class="{ focus: $root.searchFieldIsFocus || AcfiData.display }">' +
-                 '<div ng-transclude></div><div class="acfi-before" acfi-before></div>' +
-                 '<input tabindex="2" id="inputAnimation" class="anim-field" type="text" maxlength="70" spellcheck="false"';
-  template += ' data-ng-class="{\'no-opacity\': AcfiData.animating == false}")';
-  template += ' data-ng-style="AcfiData.font_style"';
-  template += ' data-ng-model="AcfiData.string">';
-  template += '<div data-ng-style="AcfiData.font_style" class="fancyInputFiller">';
-  template += '<span data-ng-repeat="char in AcfiData.data_before track by $index" data-ng-class="{colored: char[0] == true}">{{char[1]}}</span>';
-  template += '<b class="caret" data-ng-hide="$root.hideCaret">&#8203;</b>';
-  template += '<span data-ng-repeat="char_2 in AcfiData.data_after track by $index">{{char_2}}</span>';
-  template += '</div>';
-  template += '<span acfi-after></span>';
+  var dummy_transclude = '<div ng-transclude></div>';
+  var before_template = '<div class="acfi-before" acfi-before></div>';
+  var after_template = '<span acfi-after></span>';
+
+  var input_template = '<input tabindex="2" id="inputAnimation" class="anim-field" type="text" maxlength="70" spellcheck="false"' +
+                       ' data-ng-class="{\'no-opacity\': AcfiData.animating == false}") data-ng-style="AcfiData.font_style"' +
+                       ' data-ng-model="AcfiData.string">';
+
+  var overlay_template =  '<div data-ng-style="AcfiData.font_style" class="fancyInputFiller">' +
+                          '<span data-ng-repeat="char in AcfiData.data_before track by $index" data-ng-class="{colored: char[0] == true}">{{char[1]}}</span>' +
+                          '<b class="caret" data-ng-hide="$root.hideCaret">&#8203;</b>' +
+                          '<span data-ng-repeat="char_2 in AcfiData.data_after track by $index">{{char_2}}</span>' +
+                          '</div>';
+
+  var template = '<div data-ng-class="{ focus: AcfiData.searchFieldIsFocus || AcfiData.display }">';
+  template += dummy_transclude + before_template + input_template + overlay_template + after_template;
   template += '</div>';
 
   return {
@@ -231,10 +233,9 @@ acfi.directive('acFancyInput', [ '$rootScope', 'acfiCaret', "$timeout", 'acfiDat
     controller: 'acfiSearchboxController',
     scope: {
      acAnimate: "=acAnimate",
-     acId: "=acId"
+     acId: "=acFancyInput"
     },
-
-    link: function (scope, element, attrs) {
+    link: function (scope, element) {
 
       var input = angular.element(element.children()[2]);
 
@@ -242,11 +243,14 @@ acfi.directive('acFancyInput', [ '$rootScope', 'acfiCaret', "$timeout", 'acfiDat
       scope.acfiCaret = acfiCaret;
       scope.AcfiData = AcfiDataInstance.get(scope.acId);
 
+
       input.bind("keyup select mouseup cut paste", function (e) {
         if(e.keyCode !== 13){ scope.processBinding(e, this); }
       });
 
+
       scope.$on("onEnterQuery", function(){ element[0].blur(); });
+
 
       input.on('blur', function() {
         scope.$apply(function() {
@@ -255,9 +259,9 @@ acfi.directive('acFancyInput', [ '$rootScope', 'acfiCaret', "$timeout", 'acfiDat
         });
       });
 
+
       input.on('focus', function() {
         scope.$apply(function() {
-
           scope.AcfiData.decideToStop();
           scope.AcfiData.searchFieldIsFocus = true;
         });
@@ -280,8 +284,8 @@ acfi.directive('acFancyInput', [ '$rootScope', 'acfiCaret', "$timeout", 'acfiDat
         }
       });
 
-      scope.processBinding = function(e, el){
 
+      scope.processBinding = function(e, el){
         scope.$apply(function () {
           var input_str = input.val().replace(/\s+/g, "\u00A0").split("").reverse();
           var pos = scope.acfiCaret.setCaret(el, true, e);
@@ -289,15 +293,9 @@ acfi.directive('acFancyInput', [ '$rootScope', 'acfiCaret', "$timeout", 'acfiDat
         });
       };
 
-      // looks like I can only watch a ngModel or expression
+
       scope.$watch(function(){ return scope.AcfiData.string; }, function (value) {
-        if(scope.AcfiData.watching === true){
-          if(scope.filterTextTimeout){ $timeout.cancel(scope.filterTextTimeout); }
-          scope.filterTextTimeout = $timeout(function() {
-            scope.AcfiData.checkFontThreshold();
-            $rootScope.$broadcast("onQuerySuggestions", value, scope.acId);
-          }, 140);
-        }
+        scope.AcfiData.handleWatch(value);
       });
     }
   };
@@ -311,18 +309,19 @@ var acfi_input_template_directive = function(string){
     require: '^acFancyInput',
     link: function(s, element, a, controller, transclude){
       element.remove();
-      controller['renderAcfi'+string+'Template'] = transclude;
+      controller['renderAcfi' + string + 'Template'] = transclude;
     }
   };
 };
+
 
 var acfi_input_transclude_directive = function(string){
   return {
     restrict: 'A',
     require: '^acFancyInput',
     link: function(scope, element, a, controller){
-      if(controller['renderAcfi'+string+'Template']!==undefined){
-        controller['renderAcfi'+string+'Template'](scope, function(dom){
+      if(controller['renderAcfi' + string + 'Template'] !== undefined){
+        controller['renderAcfi' + string + 'Template'](scope, function(dom){
           element.append(dom);
         });
       }
@@ -332,7 +331,6 @@ var acfi_input_transclude_directive = function(string){
 
 acfi.directive('acfiBeforeTemplate', function(){ return acfi_input_template_directive('Before'); });
 acfi.directive('acfiBefore', function(){ return acfi_input_transclude_directive('Before'); });
-
 acfi.directive('acfiAfterTemplate', function(){ return acfi_input_template_directive('After'); });
 acfi.directive('acfiAfter', function(){ return acfi_input_transclude_directive('After'); });
 
@@ -428,6 +426,7 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiIntervalInstance', func
     this.lock_display = false;
     this.suggestion_types = [ { "klass": '', "contents": [], "name": '' } ];
     this.actionTimeout = {};
+    this.filterTextTimeout = {};
     this.init_string = '';
     this.selected = {};
     this.resizeAnimation = false;
@@ -632,11 +631,7 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiIntervalInstance', func
     if(extra_condition === undefined){ extra_condition = true; }
     var data = this;
     $rootScope.hideCaret = false;
-    console.log(extra_condition);
-    console.log(this.string);
-    console.log(this.animating);
     if(this.animating === false && this.string === "" && extra_condition){
-
       this.actionTimeout = $timeout(function(){
         data.reset();
         $rootScope.$broadcast("onResetInterval", data.id);
@@ -663,6 +658,17 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiIntervalInstance', func
     }
   };
 
+  var handleWatch = function(value){
+    var data = this;
+    if(this.watching === true){
+      if(this.filterTextTimeout){ $timeout.cancel(this.filterTextTimeout); }
+      this.filterTextTimeout = $timeout(function() {
+        data.checkFontThreshold();
+        $rootScope.$broadcast("onQuerySuggestions", value, data.id);
+      }, 250);
+    }
+  };
+
 
   acfiData.prototype = {
     initText: initText,
@@ -685,7 +691,8 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiIntervalInstance', func
     truncate: truncate,
     decideToStop: decideToStop,
     decideToStart: decideToStart,
-    processBinding: processBinding
+    processBinding: processBinding,
+    handleWatch: handleWatch
   };
 
 
@@ -698,17 +705,13 @@ acfi.factory('acfiDataInstance', [ 'acfiData', function(acfiData){
   var acfiDataInstance = { data: {} };
 
   acfiDataInstance.create = function(id){
-    if(acfiDataInstance.data[id] === undefined){
-      acfiDataInstance.data[id] = new acfiData({ id:id });
-    }else{
-      console.log('Error: acfiData Instance already exists with the id: ' + id);
-    }
+    acfiDataInstance.data[id] = new acfiData({ id:id });
     return acfiDataInstance.data[id];
   };
 
   acfiDataInstance.get = function(id){
     if(acfiDataInstance.data[id] === undefined){
-      acfiDataInstance.data[id] = new acfiData({ id:id });
+      acfiDataInstance.create(id);
     }
     return acfiDataInstance.data[id];
   };
@@ -722,105 +725,6 @@ acfi.factory('acfiDataInstance', [ 'acfiData', function(acfiData){
 
 // manages text animation in the input field
 
-//acfi.factory('acfiInterval', [ '$q', '$rootScope', '$interval', '$timeout', function ($q, $rootScope, $interval, $timeout) {
-//
-//  var acfiInterval = {};
-//
-//  acfiInterval.intervalTime = 90;
-//  acfiInterval.pauseTimeoutTime = 2000;
-//  acfiInterval.stopInterval = false;
-//  acfiInterval.initInterval = null;
-//  acfiInterval.pauseTimeout = null;
-//  acfiInterval.continueInterval = null;
-//  acfiInterval.loopIndex = 0;
-//  acfiInterval.maxLoopIndex= 6;
-//  acfiInterval.miniTimeout = null;
-//  acfiInterval.inFocus = true;
-//  acfiInterval.antiKonami = false;
-//
-//  acfiInterval.startAnimationInterval = function () {
-//    if(acfiInterval.antiKonami === false){
-//      acfiInterval.pauseTimeout = null;
-//      acfiInterval.continueInterval = null;
-//
-//      acfiInterval.initInterval = $interval(function () {
-//        if(acfiInterval.inFocus === true){
-//          // only refresh state if in focus
-//          $rootScope.$broadcast("onInitInterval");
-//        }
-//      }, acfiInterval.intervalTime);
-//      acfiInterval.antiKonami = true;
-//    }
-//  };
-//
-//
-//  acfiInterval.stopAnimationInterval = function () {
-//    acfiInterval.antiKonami = false;
-//    acfiInterval.loopIndex = 0;
-//    acfiInterval.safeCancel(acfiInterval.initInterval);
-//    acfiInterval.safeTimeoutCancel(acfiInterval.pauseTimeout);
-//    acfiInterval.safeTimeoutCancel(acfiInterval.miniTimeout);
-//    acfiInterval.safeCancel(acfiInterval.continueInterval);
-//    acfiInterval.initInterval = null;
-//    acfiInterval.continueInterval = null;
-//    acfiInterval.pauseTimeout = null;
-//    acfiInterval.stopInterval = true;
-//    $rootScope.$broadcast("onStopInterval");
-//  };
-//
-//
-//  acfiInterval.continueAnimationInterval = function(){
-//    acfiInterval.pauseTimeout = null;
-//    acfiInterval.miniTimeout = $timeout(function () {
-//      if(acfiInterval.inFocus === true){
-//        $rootScope.$broadcast("onSlowContinueInterval");
-//      }
-//      acfiInterval.continueInterval = $interval(function () {
-//        if(acfiInterval.inFocus === true){
-//          $rootScope.$broadcast("onContinueInterval");
-//        }
-//      }, acfiInterval.intervalTime);
-//    }, 120);
-//  };
-//
-//
-//  acfiInterval.pauseAnimationInterval = function (){
-//
-//    acfiInterval.safeCancel(acfiInterval.continueInterval);
-//    acfiInterval.safeCancel(acfiInterval.initInterval);
-//    acfiInterval.initInterval = null;
-//    acfiInterval.continueInterval = null;
-//
-//    acfiInterval.pauseTimeout = $timeout(function () {
-//      if(acfiInterval.inFocus === true){
-//        acfiInterval.loopIndex += 1;
-//        if(acfiInterval.loopIndex >= acfiInterval.maxLoopIndex){
-//          acfiInterval.loopIndex = 0;
-//        }
-//        $rootScope.$broadcast("onPauseInterval", acfiInterval.loopIndex);
-//        acfiInterval.continueAnimationInterval();
-//      }else{
-//        // Important condition: retry after the timeout if no focus
-//        // main reason of glitch
-//        acfiInterval.pauseAnimationInterval();
-//      }
-//
-//    }, acfiInterval.pauseTimeoutTime);
-//
-//  };
-//
-//
-//  acfiInterval.safeCancel = function(interval){
-//    if(interval !== null){ $interval.cancel(interval); }
-//  };
-//
-//
-//  acfiInterval.safeTimeoutCancel = function(timeout){
-//    if(timeout !== null){ $timeout.cancel(timeout); }
-//  };
-//
-//  return acfiInterval;
-//}]);
 
 acfi.factory('acfiInterval', [ '$q', '$rootScope', '$interval', '$timeout', function ($q, $rootScope, $interval, $timeout) {
 
@@ -838,7 +742,6 @@ acfi.factory('acfiInterval', [ '$q', '$rootScope', '$interval', '$timeout', func
     this.inFocus = true;
     this.antiKonami = false;
   };
-
 
 
   var startAnimationInterval = function () {
@@ -909,9 +812,7 @@ acfi.factory('acfiInterval', [ '$q', '$rootScope', '$interval', '$timeout', func
         // main reason of glitch
         acfi_i.pauseAnimationInterval();
       }
-
     }, this.pauseTimeoutTime);
-
   };
 
 
@@ -923,7 +824,6 @@ acfi.factory('acfiInterval', [ '$q', '$rootScope', '$interval', '$timeout', func
   var safeTimeoutCancel = function(timeout){
     if(timeout !== null){ $timeout.cancel(timeout); }
   };
-
 
 
   acfiInterval.prototype = {
@@ -944,15 +844,14 @@ acfi.factory('acfiIntervalInstance', [ "acfiInterval", function(acfiInterval){
   var acfiIntervalInstance = { data: {} };
 
   acfiIntervalInstance.create = function(id){
-    if(acfiIntervalInstance.data[id]===undefined){
-      acfiIntervalInstance.data[id] = new acfiInterval(id);
-    }else{
-      console.log('Error: acfiInterval Instance already exists with the id: '+id);
-    }
+    acfiIntervalInstance.data[id] = new acfiInterval(id);
     return acfiIntervalInstance.data[id];
   };
 
   acfiIntervalInstance.get = function(id){
+    if(acfiIntervalInstance.data[id]===undefined){
+      acfiIntervalInstance.create(id);
+    }
     return acfiIntervalInstance.data[id];
   };
 

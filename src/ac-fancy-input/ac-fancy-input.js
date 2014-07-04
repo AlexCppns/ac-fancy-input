@@ -12,6 +12,6 @@ var acfi = angular.module('ac-fancy-input',[]);
 // To Do:
 // - Consistent object names and configuration
 // - Remove $rootScope usage where not needed
-// - Singleton => Multiple instances
+// - Full tests of the multiple instances
 // - Extract some of the css classes/Clean up the css
 // - Move/Remove application specific code

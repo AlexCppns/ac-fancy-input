@@ -9,7 +9,7 @@ acfi.controller('acfiSuggestionsController',[ 'acfiDataInstance', '$scope','$q',
   $scope.AcfiData = AcfiDataInstance.get($scope.acId);
 
   $scope.$on("onKeyUpAndDown", function(event, direction, id){
-    if($scope.acId===id){
+    if($scope.acId === id){
       $scope.deferWatching().then(function(success){
         if(success){
           $scope.AcfiData.display = true;
@@ -20,7 +20,7 @@ acfi.controller('acfiSuggestionsController',[ 'acfiDataInstance', '$scope','$q',
   });
 
   $scope.$on("onCloseDisplay", function(event, id){
-    if($scope.acId===id){
+    if($scope.acId === id){
       // This apply is important (called from directive):
       $scope.$apply(function(){
         $scope.AcfiData.display = false;
@@ -80,7 +80,7 @@ acfi.directive('acFancyInputSuggestions', [ '$rootScope','$window', function($ro
     scope: {
       acfiViewMoreAction: '=acViewMoreAction',
       acSuggestionCount: '=?',
-      acId: '=acId'
+      acId: '=acFancyInputSuggestions'
     },
     template: template,
     transclude: true,
