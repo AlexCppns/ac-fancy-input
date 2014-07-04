@@ -68,6 +68,8 @@ List of optional transclusion directives:
 
 ## Broadcast hooks
 
+Actions are currently handled through broadcast events. There are 2 main ones:
+
 ### onSubmitQuery
 
 Usage:
