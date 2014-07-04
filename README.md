@@ -7,7 +7,7 @@ Inspired from Jquery library: https://github.com/yairEO/fancyInput
 
 Currently available on http://AlexCppns.github.io
 
-## Features:
+## Features
 
 - Animated placeholder typing.
 - Text with mixed colors inside input.
@@ -66,6 +66,26 @@ List of optional transclusion directives:
 `acfiData` contains most of the relevant data and methods used in this module. Instances of that service can be obtained via the service `acfiDataInstance`.
 
 
+## Broadcast hooks
+
+### onSubmitQuery
+
+Usage:
+
+    $scope.$on('onSubmitQuery', function(event, id){
+       // id is the unique identifier of the fancy-input
+       // event triggered when clicking on a suggestion or pressing the enter key
+    });
+
+### onQuerySuggestions
+
+Usage:
+
+   $scope.$on("onQuerySuggestions", function (event, query, id) {
+      // id is the unique identifier of the fancy-input
+      // event triggered when the input field is updated
+      // This is where the list of suggestions is updated
 
 
 
+  });
