@@ -48,12 +48,12 @@ acfi.controller('acfiSearchboxController', [ '$scope', '$window', 'acfiIntervalI
 
 acfi.directive('acFancyInput', [ '$rootScope', 'acfiCaret', "$timeout", 'acfiDataInstance', function($rootScope, acfiCaret, $timeout, AcfiDataInstance) {
 
-  var dummy_transclude = '<div ng-transclude></div>';
-  var before_template = '<div class="acfi-before" acfi-before></div>';
-  var after_template = '<span acfi-after></span>';
+  var dummy_transclude = '<div data-ng-transclude></div>';
+  var before_template = '<div class="acfi-before" data-acfi-before></div>';
+  var after_template = '<span data-acfi-after></span>';
 
   var input_template = '<input tabindex="2" id="inputAnimation" class="anim-field" type="text" maxlength="70" spellcheck="false"' +
-                       ' data-ng-class="{\'no-opacity\': AcfiData.animating == false}") data-ng-style="AcfiData.font_style"' +
+                       ' data-ng-class="{\'no-opacity\': AcfiData.animating == false}" data-ng-style="AcfiData.font_style"' +
                        ' data-ng-model="AcfiData.string">';
 
   var overlay_template =  '<div data-ng-style="AcfiData.font_style" class="fancyInputFiller">' +
@@ -65,6 +65,8 @@ acfi.directive('acFancyInput', [ '$rootScope', 'acfiCaret', "$timeout", 'acfiDat
   var template = '<div data-ng-class="{ focus: AcfiData.searchFieldIsFocus || AcfiData.display }">';
   template += dummy_transclude + before_template + input_template + overlay_template + after_template;
   template += '</div>';
+
+
 
   return {
     restrict: "A",

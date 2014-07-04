@@ -45,7 +45,9 @@ acfi.controller('acfiSuggestionsController',[ 'acfiDataInstance', '$scope','$q',
 
 acfi.directive('acFancyInputSuggestions', [ '$rootScope','$window', function($rootScope, $window){
 
-  var header_template = '<div ng-transclude></div><span acfi-header></span>';
+
+
+  var header_template = '<div data-ng-transclude></div><span data-acfi-header></span>';
 
   var ng_repeat_template = '<div class="type-row clearfix" data-ng-class="suggestion_type.klass" data-ng-class-even="\'even\'" data-ng-class-odd="\'odd\'" data-ng-repeat="suggestion_type in AcfiData.suggestion_types">' +
       '<div class="type-name-wrapper" data-ng-show="suggestion_type.contents.length > 0">' +
@@ -57,7 +59,7 @@ acfi.directive('acFancyInputSuggestions', [ '$rootScope','$window', function($ro
       'data-ng-class="{ selected: content.selected}" ' +
       'data-ng-mouseover="AcfiData.selectSuggestion($parent.$index, $index)" ' +
       'data-ng-click="AcfiData.selectSuggestion($parent.$index, $index); acfiQueryAction()">' +
-      '<div class="row-wrapper light clearfix" acfi-content></div>'+
+      '<div class="row-wrapper light clearfix" data-acfi-content></div>'+
       '</li>' +
       '</ul>' +
       '</div>' +
@@ -66,13 +68,13 @@ acfi.directive('acFancyInputSuggestions', [ '$rootScope','$window', function($ro
   var footer_template = '<div class="view-more">' +
       '<a data-ng-show="AcfiData.noResultDisplay == false && acSuggestionCount > AcfiData.suggestionDisplayLimit" ' +
       'data-ng-click="acfiViewMoreAction($event)">' +
-      '<div acfi-view-more></div>' +
+      '<div data-acfi-view-more></div>' +
       '</a>' +
-      '<a data-ng-show="AcfiData.noResultDisplay == true" class="no-results"><div acfi-no-results></div></a>'+
+      '<a data-ng-show="AcfiData.noResultDisplay == true" class="no-results"><div data-acfi-no-results></div></a>'+
       '</div>';
 
 
-  var template = '<div id="input-suggestion-box" class="input-suggestion" data-ng-show="AcfiData.display == true">';
+  var template = '<div id="input-suggestion-box" class="input-suggestion" data-ng-show="AcfiData.display == true" data-acfi-reset-display>';
   template += header_template + ng_repeat_template + footer_template;
   template += '</div>';
 

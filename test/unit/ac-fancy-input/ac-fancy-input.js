@@ -13,29 +13,29 @@ describe('ac-fancy-input', function() {
         return dependencies.indexOf(module) >= 0;
     };
 
-    beforeEach(function() {
-
-        // Get module
-        module = angular.module('ac-fancy-input');
-        dependencies = module.requires;
-    });
-
-    it('should load config module', function() {
-        expect(hasModule('ac-fancy-input.config')).toBeTruthy();
-    });
-
-    
-
-    
-    it('should load directives module', function() {
-        expect(hasModule('ac-fancy-input.directives')).toBeTruthy();
-    });
-    
-
-    
-    it('should load services module', function() {
-        expect(hasModule('ac-fancy-input.services')).toBeTruthy();
-    });
+//    beforeEach(function() {
+//
+//        // Get module
+//        module = angular.module('ac-fancy-input');
+//        dependencies = module.requires;
+//    });
+//
+//    it('should load config module', function() {
+//        expect(hasModule('ac-fancy-input.config')).toBeTruthy();
+//    });
+//
+//
+//
+//
+//    it('should load directives module', function() {
+//        expect(hasModule('ac-fancy-input.directives')).toBeTruthy();
+//    });
+//
+//
+//
+//    it('should load services module', function() {
+//        expect(hasModule('ac-fancy-input.services')).toBeTruthy();
+//    });
     
 
 });
