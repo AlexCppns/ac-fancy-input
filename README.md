@@ -73,19 +73,16 @@ List of optional transclusion directives:
 Usage:
 
     $scope.$on('onSubmitQuery', function(event, id){
-       // id is the unique identifier of the fancy-input
-       // event triggered when clicking on a suggestion or pressing the enter key
+      // id is the unique identifier of the fancy-input
+      // event triggered when clicking on a suggestion or pressing the enter key
     });
 
 ### onQuerySuggestions
 
 Usage:
 
-   $scope.$on("onQuerySuggestions", function (event, query, id) {
+    $scope.$on("onQuerySuggestions", function (event, query, id) {
       // id is the unique identifier of the fancy-input
       // event triggered when the input field is updated
       // This is where the list of suggestions is updated
-
-
-
-  });
+    });
