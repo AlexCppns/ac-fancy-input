@@ -1,7 +1,5 @@
 # ac-fancy-input
 
-WARNING: Still in Alpha development. This package won't be stable until the limitations are removed and it is fully tested.
-
 Fancy input module for angularJS.
 Inspired from Jquery library: https://github.com/yairEO/fancyInput
 
@@ -14,11 +12,6 @@ Currently available on http://AlexCppns.github.io
 - Animated placeholder typing.
 - Text with mixed colors inside input.
 - Custom nested suggestions with template support.
-
-## Limitations
-
-The input data object is a singleton for now.
-You cannot have multiple instances of the input directive on the same page without having unwanted effects.
 
 ## Basic Usage
 
