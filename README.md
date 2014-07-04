@@ -100,6 +100,7 @@ Usage:
 
 ## Contribute
 
-- For questions/bug reports/suggestions, [open a ticket](https://github.com/AlexCppns/ac-fancy-input/issues/new)
-- Fork it!
-- Do a pull request.
+- For questions/bug reports/suggestions, [open an issue](https://github.com/AlexCppns/ac-fancy-input/issues/new)
+- Before creating a Pull Request, please [open an issue](https://github.com/AlexCppns/ac-fancy-input/issues/new) too.
+- Forks are welcomed.
+
