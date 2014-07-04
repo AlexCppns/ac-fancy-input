@@ -9,7 +9,6 @@ Inspired from Jquery library: https://github.com/yairEO/fancyInput
 
 Currently available on http://AlexCppns.github.io
 
-
 ## Features:
 
 - Animated placeholder typing.
@@ -51,7 +50,7 @@ This is used in combination with:
     </div>
 
 where `acfi-content-template` is the template contained in the `ng-repeat` block of the suggestion box.
-`content` is the only object you have access to in that scope, it can be edited via the service `acfiData` (now being refactored).
+`content` is the only object you have access to in that scope, it can be edited via the service `acfiDataInstance` which handle instances of `acfiData`.
 `1` should match the identifier of the corresponding input.
 
 List of optional attributes:
@@ -66,12 +65,12 @@ List of optional transclusion directives:
 
 ## Available Services
 
-`acfiInterval` is the input animation service. The following methods are used to start and stop the animation:
+`acfiInterval` is the input animation service, it is instantiated via the service `acfiIntervalInstance`. The following methods are used to start and stop the animation:
 
 - `startAnimationInterval()`: Starts the animation, not called by default.
 - `stopAnimationInterval()`: Stops the animation and resets it.
 
-`acfiData` contains most of the relevant data and methods used in this module. It is currently being refactored to allow multiple instances.
+`acfiData` contains most of the relevant data and methods used in this module. Instances of that service can be obtained via the service acfiDataInstance.
 
 
 
