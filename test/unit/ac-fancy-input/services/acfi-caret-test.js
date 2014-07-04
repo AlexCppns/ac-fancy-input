@@ -4,9 +4,6 @@ describe('acfiCaret', function(){
   });
 
 
-
-
-
   describe('setDirection', function(){
     it('returns the correct direction', inject(function(acfiCaret){
       var e = { keyCode: 37, type: '' };
