@@ -101,6 +101,6 @@ Usage:
 ## Contribute
 
 - For questions/bug reports/suggestions, [open an issue](https://github.com/AlexCppns/ac-fancy-input/issues/new)
-- Before creating a Pull Request, please [open an issue](https://github.com/AlexCppns/ac-fancy-input/issues/new) too.
+- Before creating a Pull Request, please [open an issue](https://github.com/AlexCppns/ac-fancy-input/issues/new) describing your changes.
 - Forks are welcomed.
 
