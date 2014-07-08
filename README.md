@@ -124,7 +124,6 @@ Usage:
 - Increase test coverage.
 - Improve the demo.
 - `$broadcast` can become expensive => investigate better ways of handling actions.
-- Surface more configuration.
 - Use `$templateCache` for directives.
 
 ## Contribute
