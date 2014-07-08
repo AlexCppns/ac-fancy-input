@@ -43,40 +43,7 @@ acfi.controller('acfiSuggestionsController',[ 'acfiDataInstance', '$scope','$q',
 // **************************************** fancy input suggestions directives ************************************** //
 
 
-acfi.directive('acFancyInputSuggestions', [ '$rootScope','$window', function($rootScope, $window){
-
-
-
-  var header_template = '<div data-ng-transclude></div><span data-acfi-header></span>';
-
-  var ng_repeat_template = '<div class="type-row clearfix" data-ng-class="suggestion_type.klass" data-ng-class-even="\'even\'" data-ng-class-odd="\'odd\'" data-ng-repeat="suggestion_type in AcfiData.suggestion_types">' +
-      '<div class="type-name-wrapper" data-ng-show="suggestion_type.contents.length > 0">' +
-      '<div class="type-name small semi-bold">{{suggestion_type.name}}</div>' +
-      '</div>'+
-      '<div class="type-content" data-ng-show="suggestion_type.contents.length > 0">' +
-      '<ul>' +
-      '<li data-ng-repeat="content in suggestion_type.contents" ' +
-      'data-ng-class="{ selected: content.selected}" ' +
-      'data-ng-mouseover="AcfiData.selectSuggestion($parent.$index, $index)" ' +
-      'data-ng-click="AcfiData.selectSuggestion($parent.$index, $index); acfiQueryAction()">' +
-      '<div class="row-wrapper light clearfix" data-acfi-content></div>'+
-      '</li>' +
-      '</ul>' +
-      '</div>' +
-      '</div>';
-
-  var footer_template = '<div class="view-more">' +
-      '<a data-ng-show="AcfiData.noResultDisplay == false && acSuggestionCount > AcfiData.suggestionDisplayLimit" ' +
-      'data-ng-click="acfiViewMoreAction($event)">' +
-      '<div data-acfi-view-more></div>' +
-      '</a>' +
-      '<a data-ng-show="AcfiData.noResultDisplay == true" class="no-results"><div data-acfi-no-results></div></a>'+
-      '</div>';
-
-
-  var template = '<div class="input-suggestion-container"><div id="input-suggestion-box" class="input-suggestion" data-ng-show="AcfiData.display == true" data-acfi-reset-display>';
-  template += header_template + ng_repeat_template + footer_template;
-  template += '</div></div>';
+acfi.directive('acFancyInputSuggestions', [ '$rootScope','$window', '$templateCache', function($rootScope, $window,$templateCache){
 
   return {
     scope: {
@@ -85,7 +52,7 @@ acfi.directive('acFancyInputSuggestions', [ '$rootScope','$window', function($ro
       acId: '=acFancyInputSuggestions'
     },
     replace: true,
-    template: template,
+    template: $templateCache.get('templates/acfi/suggestions.html'),
     transclude: true,
     controller: 'acfiSuggestionsController',
     link: function(scope, element, attrs){

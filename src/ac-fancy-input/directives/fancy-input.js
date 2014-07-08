@@ -46,31 +46,11 @@ acfi.controller('acfiSearchboxController', [ '$scope', '$window', 'acfiIntervalI
 
 // ******************************************* fancy input directives *********************************************** //
 
-acfi.directive('acFancyInput', [ '$rootScope', 'acfiCaret', "$timeout", 'acfiDataInstance', function($rootScope, acfiCaret, $timeout, AcfiDataInstance) {
-
-  var dummy_transclude = '<div data-ng-transclude></div>';
-  var before_template = '<div class="acfi-before" data-acfi-before></div>';
-  var after_template = '<span data-acfi-after></span>';
-
-  var input_template = '<input tabindex="{{acId}}" id="acfi{{acId}}" class="anim-field" type="text" maxlength="{{acMaxLength}}" spellcheck="false"' +
-                       ' data-ng-class="{\'no-opacity\': AcfiData.animating == false}" data-ng-style="AcfiData.font_style"' +
-                       ' data-ng-model="AcfiData.string">';
-
-  var overlay_template =  '<div data-ng-style="AcfiData.font_style" class="fancyInputFiller">' +
-                          '<span data-ng-repeat="char in AcfiData.data_before track by $index" data-ng-class="{colored: char[0] == true}">{{char[1]}}</span>' +
-                          '<b class="caret" data-ng-hide="$root.hideCaret">&#8203;</b>' +
-                          '<span data-ng-repeat="char_2 in AcfiData.data_after track by $index">{{char_2}}</span>' +
-                          '</div>';
-
-  var template = '<div data-ng-class="{ focus: AcfiData.searchFieldIsFocus || AcfiData.display }">';
-  template += dummy_transclude + before_template + input_template + overlay_template + after_template;
-  template += '</div>';
-
-
+acfi.directive('acFancyInput', [ '$rootScope', 'acfiCaret', "$timeout", 'acfiDataInstance','$templateCache', function($rootScope, acfiCaret, $timeout, AcfiDataInstance, $templateCache) {
 
   return {
     restrict: "A",
-    template: template,
+    template: $templateCache.get('templates/acfi/fancy-input.html'),
     replace: true,
     transclude: true,
     controller: 'acfiSearchboxController',

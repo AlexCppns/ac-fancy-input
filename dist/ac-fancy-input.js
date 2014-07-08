@@ -1,11 +1,5 @@
 (function(window, document) {
 
-// Create all modules and define dependencies to make sure they exist
-// and are loaded in the correct order to satisfy dependency injection
-// before all nested files are concatenated by Grunt
-
-// Modules
-var acfi = angular.module('ac-fancy-input',[]);
 
 // Author: Alexandre FC Coppens
 // Date of first iteration: Fri 20 Jun 2014 15:29:06 EDT
@@ -17,6 +11,22 @@ var acfi = angular.module('ac-fancy-input',[]);
 // - Full tests of the multiple instances
 // - Extract some of the css classes/Clean up the css
 // - Move/Remove application specific code
+
+
+
+
+// Create all modules and define dependencies to make sure they exist
+// and are loaded in the correct order to satisfy dependency injection
+// before all nested files are concatenated by Grunt
+
+// Modules
+var acfi = angular.module('ac-fancy-input',[]);
+
+acfi.run([ '$templateCache','acfiTemplates', function($templateCache, acfiTemplates){
+
+  $templateCache.put('templates/acfi/suggestions.html', acfiTemplates.getSuggestions());
+  $templateCache.put('templates/acfi/fancy-input.html', acfiTemplates.getInput());
+}]);
 
 // ****************************************************************************************************************** //
 
@@ -62,40 +72,7 @@ acfi.controller('acfiSuggestionsController',[ 'acfiDataInstance', '$scope','$q',
 // **************************************** fancy input suggestions directives ************************************** //
 
 
-acfi.directive('acFancyInputSuggestions', [ '$rootScope','$window', function($rootScope, $window){
-
-
-
-  var header_template = '<div data-ng-transclude></div><span data-acfi-header></span>';
-
-  var ng_repeat_template = '<div class="type-row clearfix" data-ng-class="suggestion_type.klass" data-ng-class-even="\'even\'" data-ng-class-odd="\'odd\'" data-ng-repeat="suggestion_type in AcfiData.suggestion_types">' +
-      '<div class="type-name-wrapper" data-ng-show="suggestion_type.contents.length > 0">' +
-      '<div class="type-name small semi-bold">{{suggestion_type.name}}</div>' +
-      '</div>'+
-      '<div class="type-content" data-ng-show="suggestion_type.contents.length > 0">' +
-      '<ul>' +
-      '<li data-ng-repeat="content in suggestion_type.contents" ' +
-      'data-ng-class="{ selected: content.selected}" ' +
-      'data-ng-mouseover="AcfiData.selectSuggestion($parent.$index, $index)" ' +
-      'data-ng-click="AcfiData.selectSuggestion($parent.$index, $index); acfiQueryAction()">' +
-      '<div class="row-wrapper light clearfix" data-acfi-content></div>'+
-      '</li>' +
-      '</ul>' +
-      '</div>' +
-      '</div>';
-
-  var footer_template = '<div class="view-more">' +
-      '<a data-ng-show="AcfiData.noResultDisplay == false && acSuggestionCount > AcfiData.suggestionDisplayLimit" ' +
-      'data-ng-click="acfiViewMoreAction($event)">' +
-      '<div data-acfi-view-more></div>' +
-      '</a>' +
-      '<a data-ng-show="AcfiData.noResultDisplay == true" class="no-results"><div data-acfi-no-results></div></a>'+
-      '</div>';
-
-
-  var template = '<div class="input-suggestion-container"><div id="input-suggestion-box" class="input-suggestion" data-ng-show="AcfiData.display == true" data-acfi-reset-display>';
-  template += header_template + ng_repeat_template + footer_template;
-  template += '</div></div>';
+acfi.directive('acFancyInputSuggestions', [ '$rootScope','$window', '$templateCache', function($rootScope, $window,$templateCache){
 
   return {
     scope: {
@@ -104,7 +81,7 @@ acfi.directive('acFancyInputSuggestions', [ '$rootScope','$window', function($ro
       acId: '=acFancyInputSuggestions'
     },
     replace: true,
-    template: template,
+    template: $templateCache.get('templates/acfi/suggestions.html'),
     transclude: true,
     controller: 'acfiSuggestionsController',
     link: function(scope, element, attrs){
@@ -208,31 +185,11 @@ acfi.controller('acfiSearchboxController', [ '$scope', '$window', 'acfiIntervalI
 
 // ******************************************* fancy input directives *********************************************** //
 
-acfi.directive('acFancyInput', [ '$rootScope', 'acfiCaret', "$timeout", 'acfiDataInstance', function($rootScope, acfiCaret, $timeout, AcfiDataInstance) {
-
-  var dummy_transclude = '<div data-ng-transclude></div>';
-  var before_template = '<div class="acfi-before" data-acfi-before></div>';
-  var after_template = '<span data-acfi-after></span>';
-
-  var input_template = '<input tabindex="{{acId}}" id="acfi{{acId}}" class="anim-field" type="text" maxlength="{{acMaxLength}}" spellcheck="false"' +
-                       ' data-ng-class="{\'no-opacity\': AcfiData.animating == false}" data-ng-style="AcfiData.font_style"' +
-                       ' data-ng-model="AcfiData.string">';
-
-  var overlay_template =  '<div data-ng-style="AcfiData.font_style" class="fancyInputFiller">' +
-                          '<span data-ng-repeat="char in AcfiData.data_before track by $index" data-ng-class="{colored: char[0] == true}">{{char[1]}}</span>' +
-                          '<b class="caret" data-ng-hide="$root.hideCaret">&#8203;</b>' +
-                          '<span data-ng-repeat="char_2 in AcfiData.data_after track by $index">{{char_2}}</span>' +
-                          '</div>';
-
-  var template = '<div data-ng-class="{ focus: AcfiData.searchFieldIsFocus || AcfiData.display }">';
-  template += dummy_transclude + before_template + input_template + overlay_template + after_template;
-  template += '</div>';
-
-
+acfi.directive('acFancyInput', [ '$rootScope', 'acfiCaret', "$timeout", 'acfiDataInstance','$templateCache', function($rootScope, acfiCaret, $timeout, AcfiDataInstance,$templateCache) {
 
   return {
     restrict: "A",
-    template: template,
+    template: $templateCache.get('templates/acfi/fancy-input.html'),
     replace: true,
     transclude: true,
     controller: 'acfiSearchboxController',
@@ -487,8 +444,11 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiIntervalInstance', func
 
   var checkFontThreshold = function(){
     var font_style = {};
+    var length = this.data_before.length + this.data_after.length;
+    if(length<3){ length = this.string.length; }
     for(var i = 0; i < this.font_thresholds.length; i++){
-      if(this.data_before.length + this.data_after.length < this.font_thresholds[i][0]){
+
+      if( length < this.font_thresholds[i][0]){
         font_style = { 'font-size': (this.font_thresholds[i][1] + "em") };
       }
     }
@@ -572,6 +532,15 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiIntervalInstance', func
     return length;
   };
 
+  var show = function(){
+    this.noResultDisplay = (this.displayedLength() === 0);
+    this.display = true;
+  };
+
+  var hide = function(){
+    this.noResultDisplay = false;
+    this.display = false;
+  };
 
   var selectSuggestion = function(i1, i2){
     this.deselectAll();
@@ -620,8 +589,13 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiIntervalInstance', func
     this.string = string;
     this.data_before = [ this.fillChar(string) ];
     this.data_after = [];
+
   };
 
+  var setInput = function(string){
+    this.updateInput(string);
+    this.hide();
+  };
 
   var flattenIndex = function(i1, i2){
     var count = i2;
@@ -722,6 +696,7 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiIntervalInstance', func
     selectContent: selectContent,
     updateSelectedData: updateSelectedData,
     updateInput: updateInput,
+    setInput: setInput,
     flattenIndex: flattenIndex,
     deselectAll: deselectAll,
     truncate: truncate,
@@ -729,7 +704,9 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiIntervalInstance', func
     decideToStart: decideToStart,
     processBinding: processBinding,
     handleWatch: handleWatch,
-    setOpts: setOpts
+    setOpts: setOpts,
+    show: show,
+    hide: hide
   };
 
 
@@ -897,5 +874,67 @@ acfi.factory('acfiIntervalInstance', [ "acfiInterval", function(acfiInterval){
   };
 
   return acfiIntervalInstance;
+
+}]);acfi.factory('acfiTemplates', [ function(){
+
+  var acfiTemplates = {};
+
+  acfiTemplates.getSuggestions = function(){
+    var header_template = '<div data-ng-transclude></div><span data-acfi-header></span>';
+
+    var ng_repeat_template = '<div class="type-row clearfix" data-ng-class="suggestion_type.klass" data-ng-class-even="\'even\'" data-ng-class-odd="\'odd\'" data-ng-repeat="suggestion_type in AcfiData.suggestion_types">' +
+        '<div class="type-name-wrapper" data-ng-show="suggestion_type.contents.length > 0">' +
+        '<div class="type-name small semi-bold">{{suggestion_type.name}}</div>' +
+        '</div>'+
+        '<div class="type-content" data-ng-show="suggestion_type.contents.length > 0">' +
+        '<ul>' +
+        '<li data-ng-repeat="content in suggestion_type.contents" ' +
+        'data-ng-class="{ selected: content.selected}" ' +
+        'data-ng-mouseover="AcfiData.selectSuggestion($parent.$index, $index)" ' +
+        'data-ng-click="AcfiData.selectSuggestion($parent.$index, $index); acfiQueryAction()">' +
+        '<div class="row-wrapper light clearfix" data-acfi-content></div>'+
+        '</li>' +
+        '</ul>' +
+        '</div>' +
+        '</div>';
+
+    var footer_template = '<div class="view-more">' +
+        '<a data-ng-show="AcfiData.noResultDisplay == false && acSuggestionCount > AcfiData.suggestionDisplayLimit" ' +
+        'data-ng-click="acfiViewMoreAction($event)">' +
+        '<div data-acfi-view-more></div>' +
+        '</a>' +
+        '<a data-ng-show="AcfiData.noResultDisplay == true" class="no-results"><div data-acfi-no-results></div></a>'+
+        '</div>';
+
+    var suggestions_template = '<div class="input-suggestion-container"><div id="input-suggestion-box" class="input-suggestion" data-ng-show="AcfiData.display == true" data-acfi-reset-display>';
+    suggestions_template += header_template + ng_repeat_template + footer_template;
+    suggestions_template += '</div></div>';
+    return suggestions_template;
+  };
+
+
+  acfiTemplates.getInput = function(){
+    var dummy_transclude = '<div data-ng-transclude></div>';
+    var before_template = '<div class="acfi-before" data-acfi-before></div>';
+    var after_template = '<span data-acfi-after></span>';
+
+    var input_template = '<input tabindex="{{acId}}" id="acfi{{acId}}" class="anim-field" type="text" maxlength="{{acMaxLength}}" spellcheck="false"' +
+        ' data-ng-class="{\'no-opacity\': AcfiData.animating == false}" data-ng-style="AcfiData.font_style"' +
+        ' data-ng-model="AcfiData.string">';
+
+    var overlay_template =  '<div data-ng-style="AcfiData.font_style" class="fancyInputFiller">' +
+        '<span data-ng-repeat="char in AcfiData.data_before track by $index" data-ng-class="{colored: char[0] == true}">{{char[1]}}</span>' +
+        '<b class="caret" data-ng-hide="$root.hideCaret">&#8203;</b>' +
+        '<span data-ng-repeat="char_2 in AcfiData.data_after track by $index">{{char_2}}</span>' +
+        '</div>';
+
+    var acfi_template = '<div data-ng-class="{ focus: AcfiData.searchFieldIsFocus || AcfiData.display }">';
+    acfi_template += dummy_transclude + before_template + input_template + overlay_template + after_template;
+    acfi_template += '</div>';
+    return acfi_template;
+  };
+
+
+  return acfiTemplates;
 
 }]);})(window, document);

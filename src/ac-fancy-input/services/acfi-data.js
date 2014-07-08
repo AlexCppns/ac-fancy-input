@@ -77,8 +77,11 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiIntervalInstance', func
 
   var checkFontThreshold = function(){
     var font_style = {};
+    var length = this.data_before.length + this.data_after.length;
+    if(length<3){ length = this.string.length; }
     for(var i = 0; i < this.font_thresholds.length; i++){
-      if(this.data_before.length + this.data_after.length < this.font_thresholds[i][0]){
+
+      if( length < this.font_thresholds[i][0]){
         font_style = { 'font-size': (this.font_thresholds[i][1] + "em") };
       }
     }
@@ -162,6 +165,15 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiIntervalInstance', func
     return length;
   };
 
+  var show = function(){
+    this.noResultDisplay = (this.displayedLength() === 0);
+    this.display = true;
+  };
+
+  var hide = function(){
+    this.noResultDisplay = false;
+    this.display = false;
+  };
 
   var selectSuggestion = function(i1, i2){
     this.deselectAll();
@@ -210,8 +222,13 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiIntervalInstance', func
     this.string = string;
     this.data_before = [ this.fillChar(string) ];
     this.data_after = [];
+
   };
 
+  var setInput = function(string){
+    this.updateInput(string);
+    this.hide();
+  };
 
   var flattenIndex = function(i1, i2){
     var count = i2;
@@ -312,6 +329,7 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiIntervalInstance', func
     selectContent: selectContent,
     updateSelectedData: updateSelectedData,
     updateInput: updateInput,
+    setInput: setInput,
     flattenIndex: flattenIndex,
     deselectAll: deselectAll,
     truncate: truncate,
@@ -319,7 +337,9 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiIntervalInstance', func
     decideToStart: decideToStart,
     processBinding: processBinding,
     handleWatch: handleWatch,
-    setOpts: setOpts
+    setOpts: setOpts,
+    show: show,
+    hide: hide
   };
 
 

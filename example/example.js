@@ -16,6 +16,7 @@ myApp.factory('sampleData',[ function(){
   };
 }]);
 
+
 myApp.factory('sampleDataTwo',[ function(){
 
   // Example of data source, you can replace is by your own
@@ -28,6 +29,7 @@ myApp.factory('sampleDataTwo',[ function(){
         [ { string: 'Zucchini Squash', color: 'Green' }, { string: 'Sweet Corn', color: 'Yellow' }, { string: 'Tomatoes', color: 'Red' } ]
   };
 }]);
+
 
 myApp.factory('sampleOptions', [ function(){
 
@@ -55,11 +57,10 @@ myApp.factory('sampleOptions', [ function(){
 
 // This filter simulates a real database search
 myApp.filter("suggestions", function(){
-  return function(suggestions, search){
 
+  return function(suggestions, search){
     var filtered_s = [];
     for(var k = 0; k < suggestions.length;k++){
-
       if(suggestions[k].color.toLowerCase().indexOf(search.toLowerCase()) !== -1 || suggestions[k].string.toLowerCase().indexOf(search.toLowerCase()) !== -1 ){
         filtered_s.push(suggestions[k]);
       }
@@ -86,19 +87,16 @@ myApp.controller('AcExampleController', [ '$scope', 'acfiDataInstance', 'acfiInt
     if(id===1){
       $scope.AcfiData.suggestion_types[0].contents = $filter('suggestions')($scope.sampleData.fruits, query);
       $scope.AcfiData.suggestion_types[1].contents = $filter('suggestions')($scope.sampleData.vegetables, query);
-      $scope.AcfiData.display = true;
-      $scope.AcfiData.noResultDisplay = ($scope.AcfiData.displayedLength() === 0);
-      $scope.allowAnimation = false; // blocking further animation
+      $scope.AcfiData.show();
     }
   });
 
   // method called when pressing enter or selecting a suggestion
   // there are no parameters but the current input value is accessed via AcfiData.string
   $scope.$on('onSubmitQuery', function(event, id){
-    if(id===1){
+    if(id === 1){
       alert($scope.AcfiData.string + " selected");
-      $scope.AcfiData.updateInput($scope.AcfiData.selected.color + " " + $scope.AcfiData.selected.string);
-      $scope.AcfiData.display = false;
+      $scope.AcfiData.setInput($scope.AcfiData.selected.color + " " + $scope.AcfiData.selected.string);
     }
   });
 
@@ -126,11 +124,10 @@ myApp.controller('AcExampleControllerTwo', [ '$scope', 'acfiDataInstance', 'acfi
   // method called when typing
   // it should typically use the 'query' parameter to do a search and then fill the suggestion box
   $scope.$on("onQuerySuggestions", function (event, query, id) {
-    if(id===2){
+    if(id === 2){
       $scope.AcfiData.suggestion_types[0].contents = $filter('suggestions')($scope.sampleData.fruits, query);
       $scope.AcfiData.suggestion_types[1].contents = $filter('suggestions')($scope.sampleData.vegetables, query);
-      $scope.AcfiData.display = true;
-      $scope.AcfiData.noResultDisplay = ($scope.AcfiData.displayedLength() === 0);
+      $scope.AcfiData.show();
     }
   });
 
@@ -140,9 +137,8 @@ myApp.controller('AcExampleControllerTwo', [ '$scope', 'acfiDataInstance', 'acfi
   $scope.$on('onSubmitQuery', function(event, id){
     if(id===2){
       alert($scope.AcfiData.string + " selected");
-      $scope.AcfiData.updateInput($scope.AcfiData.selected.color + " " + $scope.AcfiData.selected.string);
-      $scope.AcfiData.display = false;
-      $scope.allowAnimation = false;
+      $scope.AcfiData.setInput($scope.AcfiData.selected.color + " " + $scope.AcfiData.selected.string);
+      $scope.allowAnimation = false; // blocking further animation
     }
   });
 
@@ -151,6 +147,5 @@ myApp.controller('AcExampleControllerTwo', [ '$scope', 'acfiDataInstance', 'acfi
     alert('In this action, you could open a modal window for instance to see all the suggestions');
     $scope.AcfiData.display = false;
   };
-
 }]);
 
