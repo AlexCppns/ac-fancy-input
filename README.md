@@ -17,7 +17,7 @@ Currently available on http://AlexCppns.github.io
 
 This requires angular version 1.2.9, later versions were not tested and earlier versions will likely not work.
 
-## Basic Usage
+## Getting started
 
 You can install the most up to date version via:
 
