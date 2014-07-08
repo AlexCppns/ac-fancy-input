@@ -136,7 +136,7 @@ The default templates are defined [here](https://github.com/AlexCppns/ac-fancy-i
 - Increase test coverage.
 - Improve the demo.
 - `$broadcast` can become expensive => investigate better ways of handling actions.
-- Use `$templateCache` for directives.
+
 
 ## Contribute
 
