@@ -13,13 +13,17 @@ Currently available on http://AlexCppns.github.io
 - Text with mixed colors inside input.
 - Custom nested suggestions with template support.
 
-## Basic Usage
-
-For now see the example folder
-
 ## Dependencies
 
 This requires angular version 1.2.9, later versions were not tested and earlier versions will likely not work.
+
+## Basic Usage
+
+You can install the most up to date version via:
+
+    bower install ac-fancy-input#0.3.0
+
+See the example folder for details on how to use this module. A short description of the features is also given below.
 
 ## Directives
 
