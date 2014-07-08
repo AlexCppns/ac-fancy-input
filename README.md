@@ -126,8 +126,8 @@ Usage:
 
 `$templateCache` is used to handle templates. You can overwrite the default templates via the methods
 
-- $templateCache.put('templates/acfi/fancy-input.html', myFancyInputTemplate)
-- $templateCache.put('templates/acfi/suggestions.html', mySuggestionsTemplate)
+- `$templateCache.put('templates/acfi/fancy-input.html', myFancyInputTemplate)`
+- `$templateCache.put('templates/acfi/suggestions.html', mySuggestionsTemplate)`
 
 The default templates are defined [here](https://github.com/AlexCppns/ac-fancy-input/tree/master/src/ac-fancy-input/services/acfi-templates.js)
 
