@@ -29,7 +29,7 @@ acfi.factory('acfiTemplates', [ function(){
         '<a data-ng-show="AcfiData.noResultDisplay == true" class="no-results"><div data-acfi-no-results></div></a>'+
         '</div>';
 
-    var suggestions_template = '<div class="input-suggestion-container"><div id="input-suggestion-box" class="input-suggestion" data-ng-show="AcfiData.display == true" data-acfi-reset-display>';
+    var suggestions_template = '<div class="input-suggestion-container"><div id="acfi-suggestions{{acId}}" class="input-suggestion" data-ng-show="AcfiData.display == true" data-acfi-reset-display>';
     suggestions_template += header_template + ng_repeat_template + footer_template;
     suggestions_template += '</div></div>';
     return suggestions_template;

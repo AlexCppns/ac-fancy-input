@@ -375,7 +375,7 @@ acfi.factory('acfiCaret', function () {
 acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiIntervalInstance', function($timeout, $rootScope, AcfiIntervalInstance){
 
   var acfiData = function(id, opts){
-
+    opts = opts || {};
     this.id = id;
     this.data_before = [];
     this.data_after = [];
@@ -906,7 +906,7 @@ acfi.factory('acfiIntervalInstance', [ "acfiInterval", function(acfiInterval){
         '<a data-ng-show="AcfiData.noResultDisplay == true" class="no-results"><div data-acfi-no-results></div></a>'+
         '</div>';
 
-    var suggestions_template = '<div class="input-suggestion-container"><div id="input-suggestion-box" class="input-suggestion" data-ng-show="AcfiData.display == true" data-acfi-reset-display>';
+    var suggestions_template = '<div class="input-suggestion-container"><div id="acfi-suggestions{{acId}}" class="input-suggestion" data-ng-show="AcfiData.display == true" data-acfi-reset-display>';
     suggestions_template += header_template + ng_repeat_template + footer_template;
     suggestions_template += '</div></div>';
     return suggestions_template;

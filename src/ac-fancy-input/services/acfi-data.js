@@ -8,7 +8,7 @@
 acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiIntervalInstance', function($timeout, $rootScope, AcfiIntervalInstance){
 
   var acfiData = function(id, opts){
-
+    opts = opts || {};
     this.id = id;
     this.data_before = [];
     this.data_after = [];
