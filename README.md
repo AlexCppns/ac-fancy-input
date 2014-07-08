@@ -27,7 +27,7 @@ The main directive is:
 
     <div ac-fancy-input="1"></div>
 
-where `ac-animate` controls if the input is animated or not, `1` is a mandatory unique identifier of the input.
+where `1` is a mandatory unique identifier of the input.
 
 List of optional attributes:
 
