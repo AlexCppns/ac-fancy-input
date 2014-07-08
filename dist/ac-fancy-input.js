@@ -25,7 +25,7 @@ var acfi = angular.module('ac-fancy-input',[]);
 
 acfi.controller('acfiSuggestionsController',[ 'acfiDataInstance', '$scope','$q', function(AcfiDataInstance, $scope, $q){
 
-  $scope.AcfiData = AcfiDataInstance.get($scope.acId);
+  $scope.AcfiData = AcfiDataInstance.init($scope.acId);
 
   $scope.$on("onKeyUpAndDown", function(event, direction, id){
     if($scope.acId === id){
@@ -93,9 +93,9 @@ acfi.directive('acFancyInputSuggestions', [ '$rootScope','$window', function($ro
       '</div>';
 
 
-  var template = '<div id="input-suggestion-box" class="input-suggestion" data-ng-show="AcfiData.display == true" data-acfi-reset-display>';
+  var template = '<div class="input-suggestion-container"><div id="input-suggestion-box" class="input-suggestion" data-ng-show="AcfiData.display == true" data-acfi-reset-display>';
   template += header_template + ng_repeat_template + footer_template;
-  template += '</div>';
+  template += '</div></div>';
 
   return {
     scope: {
@@ -103,6 +103,7 @@ acfi.directive('acFancyInputSuggestions', [ '$rootScope','$window', function($ro
       acSuggestionCount: '=?',
       acId: '=acFancyInputSuggestions'
     },
+    replace: true,
     template: template,
     transclude: true,
     controller: 'acfiSuggestionsController',
@@ -167,8 +168,8 @@ acfi.controller('acfiSearchboxController', [ '$scope', '$window', 'acfiIntervalI
 
   $window.focus();
 
-  $scope.AcfiData = AcfiDataInstance.get($scope.acId);
-  $scope.AcfiInterval = AcfiIntervalInstance.get($scope.acId);
+  $scope.AcfiData = AcfiDataInstance.init($scope.acId);
+  $scope.AcfiInterval = AcfiIntervalInstance.init($scope.acId);
 
   $window.onblur = function (){
     $scope.AcfiInterval.inFocus = false;
@@ -213,7 +214,7 @@ acfi.directive('acFancyInput', [ '$rootScope', 'acfiCaret', "$timeout", 'acfiDat
   var before_template = '<div class="acfi-before" data-acfi-before></div>';
   var after_template = '<span data-acfi-after></span>';
 
-  var input_template = '<input tabindex="2" id="inputAnimation" class="anim-field" type="text" maxlength="70" spellcheck="false"' +
+  var input_template = '<input tabindex="{{acId}}" id="acfi{{acId}}" class="anim-field" type="text" maxlength="{{acMaxLength}}" spellcheck="false"' +
                        ' data-ng-class="{\'no-opacity\': AcfiData.animating == false}" data-ng-style="AcfiData.font_style"' +
                        ' data-ng-model="AcfiData.string">';
 
@@ -236,16 +237,21 @@ acfi.directive('acFancyInput', [ '$rootScope', 'acfiCaret', "$timeout", 'acfiDat
     transclude: true,
     controller: 'acfiSearchboxController',
     scope: {
-     acAnimate: "=acAnimate",
-     acId: "=acFancyInput"
+      acAnimate: "=?",
+      acId: "=acFancyInput",
+      acMaxLength: "=?",
+      acOptions: "=?"
     },
     link: function (scope, element) {
+
+      scope.acMaxLength = scope.acMaxLength || 70;
+      if(scope.acAnimate===undefined){ scope.acAnimate = true; }
 
       var input = angular.element(element.children()[2]);
 
       scope.filterTextTimeout = {};
       scope.acfiCaret = acfiCaret;
-      scope.AcfiData = AcfiDataInstance.get(scope.acId);
+      scope.AcfiData = AcfiDataInstance.init(scope.acId, scope.acOptions);
 
 
       input.bind("keyup select mouseup cut paste", function (e) {
@@ -411,31 +417,55 @@ acfi.factory('acfiCaret', function () {
 
 acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiIntervalInstance', function($timeout, $rootScope, AcfiIntervalInstance){
 
-  var acfiData = function(opts){
-    this.id = opts.id;
+  var acfiData = function(id, opts){
+
+    this.id = id;
     this.data_before = [];
     this.data_after = [];
     this.string = '';
     this.tmp_str = '';
     this.animating = true;
-    this.colored_text = true;
     this.watching = false;
-    this.font_style = { 'font-size': "2.70em" };
-    this.font_thresholds = [ [2000, 1.75], [50, 2.05], [45, 2.3], [40, 2.55], [35, 2.70] ];
     this.noResultDisplay = false;
-    this.suggestionLimit = 2;
-    this.suggestionDisplayLimit = 6;
     this.selected_index = 10000;
     this.display = false;
     this.lock_display = false;
-    this.suggestion_types = [ { "klass": '', "contents": [], "name": '' } ];
     this.actionTimeout = {};
     this.filterTextTimeout = {};
-    this.init_string = '';
     this.selected = {};
-    this.resizeAnimation = false;
     this.searchFieldIsFocus = false;
-    this.acfiInterval = AcfiIntervalInstance.create(opts.id);
+
+    this.defaults = {
+      font_style: { 'font-size': "2.70em" },
+      font_thresholds:[ [2000, 1.75], [50, 2.05], [45, 2.3], [40, 2.55], [35, 2.70] ],
+      suggestion_types: [ { "klass": '', "contents": [], "name": '' } ],
+      suggestionDisplayLimit: 6,
+      suggestionLimit: 2,
+      init_string: '',
+      pause_string: '',
+      continue_array: '',
+      colored_text: true,
+      resizeAnimation: false
+    };
+
+    this.setOpts(opts);
+    this.acfiInterval = AcfiIntervalInstance.create(id);
+    this.initText(this.init_string,this.pause_string,this.continue_array);
+  };
+
+
+  var setOpts = function(opts){
+    this.colored_text = opts.colored_text || this.defaults.colored_text;
+    this.font_style = opts.font_style || this.defaults.font_style;
+    this.font_thresholds = opts.font_thresholds || this.defaults.font_thresholds;
+    this.suggestionLimit = opts.suggestionLimit || this.defaults.suggestionLimit;
+    this.suggestionDisplayLimit = opts.suggestionDisplayLimit || this.defaults.suggestionDisplayLimit;
+    this.suggestion_types = opts.suggestion_types || this.defaults.suggestion_types;
+    this.init_string = opts.init_string || this.defaults.init_string;
+    this.init_array = opts.init_array || this.defaults.init_array;
+    this.continue_array = opts.continue_array || this.defaults.continue_array;
+    this.pause_string = opts.pause_string || this.defaults.pause_string;
+    this.resizeAnimation = opts.resizeAnimation || this.defaults.resizeAnimation;
   };
 
 
@@ -585,6 +615,7 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiIntervalInstance', func
     this.checkFontThreshold();
   };
 
+
   var updateInput = function(string){
     this.string = string;
     this.data_before = [ this.fillChar(string) ];
@@ -662,6 +693,7 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiIntervalInstance', func
     }
   };
 
+
   var handleWatch = function(value){
     var data = this;
     if(this.watching === true){
@@ -696,7 +728,8 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiIntervalInstance', func
     decideToStop: decideToStop,
     decideToStart: decideToStart,
     processBinding: processBinding,
-    handleWatch: handleWatch
+    handleWatch: handleWatch,
+    setOpts: setOpts
   };
 
 
@@ -708,14 +741,16 @@ acfi.factory('acfiDataInstance', [ 'acfiData', function(acfiData){
 
   var acfiDataInstance = { data: {} };
 
-  acfiDataInstance.create = function(id){
-    acfiDataInstance.data[id] = new acfiData({ id:id });
+  acfiDataInstance.create = function(id, opts){
+    acfiDataInstance.data[id] = new acfiData(id, opts);
     return acfiDataInstance.data[id];
   };
 
-  acfiDataInstance.get = function(id){
+  acfiDataInstance.init = function(id, opts){
     if(acfiDataInstance.data[id] === undefined){
-      acfiDataInstance.create(id);
+      acfiDataInstance.create(id, opts);
+    }else if(opts !== undefined && opts !== {}){
+      acfiDataInstance.data[id].setOpts(opts);
     }
     return acfiDataInstance.data[id];
   };
@@ -852,10 +887,12 @@ acfi.factory('acfiIntervalInstance', [ "acfiInterval", function(acfiInterval){
     return acfiIntervalInstance.data[id];
   };
 
-  acfiIntervalInstance.get = function(id){
+  acfiIntervalInstance.init = function(id, start){
     if(acfiIntervalInstance.data[id]===undefined){
       acfiIntervalInstance.create(id);
     }
+
+    if(start===true){ acfiIntervalInstance.data[id].startAnimationInterval(); }
     return acfiIntervalInstance.data[id];
   };
 

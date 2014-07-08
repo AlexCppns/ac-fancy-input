@@ -6,7 +6,7 @@
 
 acfi.controller('acfiSuggestionsController',[ 'acfiDataInstance', '$scope','$q', function(AcfiDataInstance, $scope, $q){
 
-  $scope.AcfiData = AcfiDataInstance.get($scope.acId);
+  $scope.AcfiData = AcfiDataInstance.init($scope.acId);
 
   $scope.$on("onKeyUpAndDown", function(event, direction, id){
     if($scope.acId === id){
@@ -74,9 +74,9 @@ acfi.directive('acFancyInputSuggestions', [ '$rootScope','$window', function($ro
       '</div>';
 
 
-  var template = '<div id="input-suggestion-box" class="input-suggestion" data-ng-show="AcfiData.display == true" data-acfi-reset-display>';
+  var template = '<div class="input-suggestion-container"><div id="input-suggestion-box" class="input-suggestion" data-ng-show="AcfiData.display == true" data-acfi-reset-display>';
   template += header_template + ng_repeat_template + footer_template;
-  template += '</div>';
+  template += '</div></div>';
 
   return {
     scope: {
@@ -84,6 +84,7 @@ acfi.directive('acFancyInputSuggestions', [ '$rootScope','$window', function($ro
       acSuggestionCount: '=?',
       acId: '=acFancyInputSuggestions'
     },
+    replace: true,
     template: template,
     transclude: true,
     controller: 'acfiSuggestionsController',

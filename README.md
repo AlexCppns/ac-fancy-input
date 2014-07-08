@@ -19,15 +19,21 @@ For now see the example folder
 
 ## Dependencies
 
-This requires angular version 1.2.9, later versions were not tested and earlier version will likely not work.
+This requires angular version 1.2.9, later versions were not tested and earlier versions will likely not work.
 
 ## Directives
 
 The main directive is:
 
-    <div ac-fancy-input="1" ac-animate="true"></div>
+    <div ac-fancy-input="1"></div>
 
 where `ac-animate` controls if the input is animated or not, `1` is a mandatory unique identifier of the input.
+
+List of optional attributes:
+
+- `ac-animate`: You can block the start of the animation at anytime if you bind this to a scope variable.
+- `ac-max-length`: Maximum length of the string in the input tag.
+- `ac-options`: You can pass all your initialisation options to this attribute. Usually this is done in a controller or service however when you inject the `acfiDataInstance` (see example folder).
 
 List of optional transclusion directives:
 
@@ -58,12 +64,35 @@ List of optional transclusion directives:
 
 ## Available Services
 
+`acfiData` contains most of the relevant data and methods used in this module. Instances of `acfiData` can be obtained via the service `acfiDataInstance`. Typical use in a controller:
+
+    $scope.AcfiData = AcfiDataInstance.init(id, options);
+
+where `id` is the unique identifier of the input and `options` overwrites the following defaults:
+
+    {
+      font_style: { 'font-size': "2.70em" },
+      font_thresholds:[ [2000, 1.75], [50, 2.05], [45, 2.3], [40, 2.55], [35, 2.70] ],
+      suggestion_types: [ { "klass": '', "contents": [], "name": '' } ],
+      suggestionDisplayLimit: 6,
+      suggestionLimit: 2,
+      init_string: '',
+      pause_string: '',
+      continue_array: '',
+      colored_text: true,
+      resizeAnimation: false
+    }
+
 `acfiInterval` is the input animation service, it is instantiated via the service `acfiIntervalInstance`. The following methods are used to start and stop the animation:
 
 - `startAnimationInterval()`: Starts the animation, not called by default.
 - `stopAnimationInterval()`: Stops the animation and resets it.
 
-`acfiData` contains most of the relevant data and methods used in this module. Instances of `acfiData` can be obtained via the service `acfiDataInstance`.
+`acfiIntervalInstance` is used in the same way as `AcfiDataInstance` with a slight difference:
+
+    $scope.AcfiData = AcfiIntervalInstance.init(id, start);
+
+where `start` is a boolean that starts the animation right away if true.
 
 
 ## Broadcast hooks

@@ -29,12 +29,18 @@ myApp.factory('sampleDataTwo',[ function(){
   };
 }]);
 
-myApp.factory('sampleMessage', [ function(){
+myApp.factory('sampleOptions', [ function(){
 
-  // example of message strings for the searchbox animation
-  // the + and - characters are used to control the presence or absence of color
+  // sample initialization options
   var init_string = "+This is an example of what you can do with the fancy input module";
   return {
+    suggestion_types: [
+      { "klass": "fruits", "contents": [], "name": 'Fruits' },
+      { "klass": "vegetables", "contents": [], "name": 'Vegetables' }
+    ],
+    resizeAnimation: true,
+    // example of message strings for the searchbox animation
+    // the + and - characters are used to control the presence or absence of color
     init_string: init_string,
     pause_string: "",
     continue_array: [
@@ -63,30 +69,16 @@ myApp.filter("suggestions", function(){
 });
 
 
-myApp.controller('AcExampleController', [ '$scope', 'acfiDataInstance', 'acfiIntervalInstance', '$filter', 'sampleData', 'sampleMessage' ,
-                                  function($scope ,  AcfiDataInstance,   AcfiIntervalInstance ,  $filter ,  sampleData ,  sampleMessage){
+myApp.controller('AcExampleController', [ '$scope', 'acfiDataInstance', 'acfiIntervalInstance', '$filter', 'sampleData', 'sampleOptions' ,
+                                  function($scope ,  AcfiDataInstance,   AcfiIntervalInstance ,  $filter ,  sampleData ,  sampleOptions){
 
-  $scope.AcfiData = AcfiDataInstance.get(1);
-  $scope.AcfiInterval = AcfiIntervalInstance.get(1);
   $scope.sampleData = sampleData;
 
-  // The text font is rescaled to fit the input box by default when typing
-  // but there is added control for the animation
-  $scope.AcfiData.resizeAnimation = true;  // default: false
-
-  // initializing the suggestions types
-  // klass is the css class used in the html, contents is an array of hash
-  $scope.AcfiData.suggestion_types = [
-    { "klass": "fruits", "contents": [], "name": 'Fruits' },
-    { "klass": "vegetables", "contents": [], "name": 'Vegetables' }
-  ];
-
-  // Define the text that will be used in the animation
-  $scope.AcfiData.initText(sampleMessage.init_string, sampleMessage.pause_string, sampleMessage.continue_array);
-
-  // For now, the animation start is done in 2 steps for more control.
-  $scope.allowAnimation = true;
-  $scope.AcfiInterval.startAnimationInterval();
+  // the init method creates the instance if it doesnt exist
+  // it updates the options and returns the data instance otherwise
+  $scope.AcfiData = AcfiDataInstance.init(1, sampleOptions);
+  $scope.allowAnimation = true; // this could be set to false to block further animation
+  $scope.AcfiInterval = AcfiIntervalInstance.init(1, true); // the true option starts the animation right away
 
   // method called when typing
   // it should typically use the 'query' parameter to do a search and then fill the suggestion box
@@ -96,7 +88,7 @@ myApp.controller('AcExampleController', [ '$scope', 'acfiDataInstance', 'acfiInt
       $scope.AcfiData.suggestion_types[1].contents = $filter('suggestions')($scope.sampleData.vegetables, query);
       $scope.AcfiData.display = true;
       $scope.AcfiData.noResultDisplay = ($scope.AcfiData.displayedLength() === 0);
-      $scope.allowAnimation = false;
+      $scope.allowAnimation = false; // blocking further animation
     }
   });
 
@@ -119,32 +111,16 @@ myApp.controller('AcExampleController', [ '$scope', 'acfiDataInstance', 'acfiInt
 
 
 
-myApp.controller('AcExampleControllerTwo', [ '$scope', 'acfiDataInstance', 'acfiIntervalInstance', '$filter', 'sampleDataTwo', 'sampleMessage' ,
-                                  function($scope ,  AcfiDataInstance,   AcfiIntervalInstance ,  $filter ,  sampleDataTwo ,  sampleMessage){
+myApp.controller('AcExampleControllerTwo', [ '$scope', 'acfiDataInstance', 'acfiIntervalInstance', '$filter', 'sampleDataTwo', 'sampleOptions' ,
+                                  function($scope ,  AcfiDataInstance,   AcfiIntervalInstance ,  $filter ,  sampleDataTwo ,  sampleOptions){
 
-  $scope.AcfiData = AcfiDataInstance.get(2);
-  $scope.AcfiInterval = AcfiIntervalInstance.get(2);
   $scope.sampleData = sampleDataTwo;
 
-
-  // The text font is rescaled to fit the input box by default when typing
-  // but there is added control for the animation
-  $scope.AcfiData.resizeAnimation = true;  // default: false
-
-  // initializing the suggestions types
-  // klass is the css class used in the html, contents is an array of hash
-  $scope.AcfiData.suggestion_types = [
-    { "klass": "fruits", "contents": [], "name": 'Fruits' },
-    { "klass": "vegetables", "contents": [], "name": 'Vegetables' }
-  ];
-
-
-  // Define the text that will be used in the animation
-  $scope.AcfiData.initText(sampleMessage.init_string, sampleMessage.pause_string, sampleMessage.continue_array);
-
-  // For now, the animation start is done in 2 steps for more control.
-  $scope.allowAnimation = true;
-  $scope.AcfiInterval.startAnimationInterval();
+  // the init method creates the instance if it doesnt exist
+  // it updates the options and returns the data instance otherwise
+  $scope.AcfiData = AcfiDataInstance.init(2, sampleOptions);
+  $scope.allowAnimation = true; // this could be set to false to block further animation
+  $scope.AcfiInterval = AcfiIntervalInstance.init(2, true); // the true option starts the animation right away
 
 
   // method called when typing
@@ -155,7 +131,6 @@ myApp.controller('AcExampleControllerTwo', [ '$scope', 'acfiDataInstance', 'acfi
       $scope.AcfiData.suggestion_types[1].contents = $filter('suggestions')($scope.sampleData.vegetables, query);
       $scope.AcfiData.display = true;
       $scope.AcfiData.noResultDisplay = ($scope.AcfiData.displayedLength() === 0);
-
     }
   });
 

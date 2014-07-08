@@ -128,10 +128,12 @@ acfi.factory('acfiIntervalInstance', [ "acfiInterval", function(acfiInterval){
     return acfiIntervalInstance.data[id];
   };
 
-  acfiIntervalInstance.get = function(id){
+  acfiIntervalInstance.init = function(id, start){
     if(acfiIntervalInstance.data[id]===undefined){
       acfiIntervalInstance.create(id);
     }
+
+    if(start===true){ acfiIntervalInstance.data[id].startAnimationInterval(); }
     return acfiIntervalInstance.data[id];
   };
 

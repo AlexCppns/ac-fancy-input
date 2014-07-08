@@ -6,8 +6,8 @@ acfi.controller('acfiSearchboxController', [ '$scope', '$window', 'acfiIntervalI
 
   $window.focus();
 
-  $scope.AcfiData = AcfiDataInstance.get($scope.acId);
-  $scope.AcfiInterval = AcfiIntervalInstance.get($scope.acId);
+  $scope.AcfiData = AcfiDataInstance.init($scope.acId);
+  $scope.AcfiInterval = AcfiIntervalInstance.init($scope.acId);
 
   $window.onblur = function (){
     $scope.AcfiInterval.inFocus = false;
@@ -52,7 +52,7 @@ acfi.directive('acFancyInput', [ '$rootScope', 'acfiCaret', "$timeout", 'acfiDat
   var before_template = '<div class="acfi-before" data-acfi-before></div>';
   var after_template = '<span data-acfi-after></span>';
 
-  var input_template = '<input tabindex="2" id="inputAnimation" class="anim-field" type="text" maxlength="70" spellcheck="false"' +
+  var input_template = '<input tabindex="{{acId}}" id="acfi{{acId}}" class="anim-field" type="text" maxlength="{{acMaxLength}}" spellcheck="false"' +
                        ' data-ng-class="{\'no-opacity\': AcfiData.animating == false}" data-ng-style="AcfiData.font_style"' +
                        ' data-ng-model="AcfiData.string">';
 
@@ -75,16 +75,21 @@ acfi.directive('acFancyInput', [ '$rootScope', 'acfiCaret', "$timeout", 'acfiDat
     transclude: true,
     controller: 'acfiSearchboxController',
     scope: {
-     acAnimate: "=acAnimate",
-     acId: "=acFancyInput"
+      acAnimate: "=?",
+      acId: "=acFancyInput",
+      acMaxLength: "=?",
+      acOptions: "=?"
     },
     link: function (scope, element) {
+
+      scope.acMaxLength = scope.acMaxLength || 70;
+      if(scope.acAnimate===undefined){ scope.acAnimate = true; }
 
       var input = angular.element(element.children()[2]);
 
       scope.filterTextTimeout = {};
       scope.acfiCaret = acfiCaret;
-      scope.AcfiData = AcfiDataInstance.get(scope.acId);
+      scope.AcfiData = AcfiDataInstance.init(scope.acId, scope.acOptions);
 
 
       input.bind("keyup select mouseup cut paste", function (e) {

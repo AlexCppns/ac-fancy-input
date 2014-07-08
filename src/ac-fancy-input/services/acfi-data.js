@@ -7,31 +7,55 @@
 
 acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiIntervalInstance', function($timeout, $rootScope, AcfiIntervalInstance){
 
-  var acfiData = function(opts){
-    this.id = opts.id;
+  var acfiData = function(id, opts){
+
+    this.id = id;
     this.data_before = [];
     this.data_after = [];
     this.string = '';
     this.tmp_str = '';
     this.animating = true;
-    this.colored_text = true;
     this.watching = false;
-    this.font_style = { 'font-size': "2.70em" };
-    this.font_thresholds = [ [2000, 1.75], [50, 2.05], [45, 2.3], [40, 2.55], [35, 2.70] ];
     this.noResultDisplay = false;
-    this.suggestionLimit = 2;
-    this.suggestionDisplayLimit = 6;
     this.selected_index = 10000;
     this.display = false;
     this.lock_display = false;
-    this.suggestion_types = [ { "klass": '', "contents": [], "name": '' } ];
     this.actionTimeout = {};
     this.filterTextTimeout = {};
-    this.init_string = '';
     this.selected = {};
-    this.resizeAnimation = false;
     this.searchFieldIsFocus = false;
-    this.acfiInterval = AcfiIntervalInstance.create(opts.id);
+
+    this.defaults = {
+      font_style: { 'font-size': "2.70em" },
+      font_thresholds:[ [2000, 1.75], [50, 2.05], [45, 2.3], [40, 2.55], [35, 2.70] ],
+      suggestion_types: [ { "klass": '', "contents": [], "name": '' } ],
+      suggestionDisplayLimit: 6,
+      suggestionLimit: 2,
+      init_string: '',
+      pause_string: '',
+      continue_array: '',
+      colored_text: true,
+      resizeAnimation: false
+    };
+
+    this.setOpts(opts);
+    this.acfiInterval = AcfiIntervalInstance.create(id);
+    this.initText(this.init_string,this.pause_string,this.continue_array);
+  };
+
+
+  var setOpts = function(opts){
+    this.colored_text = opts.colored_text || this.defaults.colored_text;
+    this.font_style = opts.font_style || this.defaults.font_style;
+    this.font_thresholds = opts.font_thresholds || this.defaults.font_thresholds;
+    this.suggestionLimit = opts.suggestionLimit || this.defaults.suggestionLimit;
+    this.suggestionDisplayLimit = opts.suggestionDisplayLimit || this.defaults.suggestionDisplayLimit;
+    this.suggestion_types = opts.suggestion_types || this.defaults.suggestion_types;
+    this.init_string = opts.init_string || this.defaults.init_string;
+    this.init_array = opts.init_array || this.defaults.init_array;
+    this.continue_array = opts.continue_array || this.defaults.continue_array;
+    this.pause_string = opts.pause_string || this.defaults.pause_string;
+    this.resizeAnimation = opts.resizeAnimation || this.defaults.resizeAnimation;
   };
 
 
@@ -181,6 +205,7 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiIntervalInstance', func
     this.checkFontThreshold();
   };
 
+
   var updateInput = function(string){
     this.string = string;
     this.data_before = [ this.fillChar(string) ];
@@ -258,6 +283,7 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiIntervalInstance', func
     }
   };
 
+
   var handleWatch = function(value){
     var data = this;
     if(this.watching === true){
@@ -292,7 +318,8 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiIntervalInstance', func
     decideToStop: decideToStop,
     decideToStart: decideToStart,
     processBinding: processBinding,
-    handleWatch: handleWatch
+    handleWatch: handleWatch,
+    setOpts: setOpts
   };
 
 
@@ -304,14 +331,16 @@ acfi.factory('acfiDataInstance', [ 'acfiData', function(acfiData){
 
   var acfiDataInstance = { data: {} };
 
-  acfiDataInstance.create = function(id){
-    acfiDataInstance.data[id] = new acfiData({ id:id });
+  acfiDataInstance.create = function(id, opts){
+    acfiDataInstance.data[id] = new acfiData(id, opts);
     return acfiDataInstance.data[id];
   };
 
-  acfiDataInstance.get = function(id){
+  acfiDataInstance.init = function(id, opts){
     if(acfiDataInstance.data[id] === undefined){
-      acfiDataInstance.create(id);
+      acfiDataInstance.create(id, opts);
+    }else if(opts !== undefined && opts !== {}){
+      acfiDataInstance.data[id].setOpts(opts);
     }
     return acfiDataInstance.data[id];
   };
