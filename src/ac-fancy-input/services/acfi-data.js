@@ -5,7 +5,65 @@
 
 // data handler for fancy input
 
-acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiIntervalInstance', function($timeout, $rootScope, AcfiIntervalInstance){
+acfi.factory('acfiData', [ '$timeout', '$rootScope', 'acfiIntervalInstance', function($timeout, $rootScope, AcfiIntervalInstance){
+
+  // LIST OF ATTRIBUTES:
+
+  // id:                         instance identifier, should be unique
+
+  // data_before, data_after:    data containing the content of the spans that are overlayed on top of the text input
+  //                             each item in those arrays is an array with the following format: [colored, string]
+  //                             where colored is a boolean controlling if the corresponding string has a different color or not.
+
+  // string                      bound to the content of the text input
+
+  // tmp_str                     this variable is used to temporarily hold strings during the animation, see code for details
+
+  // animating                   current status of the text input, animated or not
+
+  // watching                    controls if the input is being watched, set to false when the suggestion box is displayed for obvious reasons
+
+  // noResultDisplay             controls the display of the 'no-results' container in the suggestion box
+
+  // selected_index              index of the current selection in the suggestion box, set to 10000 when nothing is selected
+
+  // display                     controls the display of the suggestion box, can be true or false
+
+  // actionTimeout               holds a timeout variable, used to avoid the animation start and stop from stepping on each other
+
+  // filterTextTimeout           holds a timeout variable, used to throttle the input watch to avoid flooding servers ;)
+
+  // selected                    holds the content of the selected DATA (everything, not just what's displayed) in the suggestion box
+
+  // searchFieldIsFocus          search field is focused?...
+
+  // LIST OF OPTIONS
+
+  // font_style                  overrides the font size, do not try to put other css in this
+
+  // font thresholds             reduces the font size depending of the number of characters. Format is [[n_characters, size],..]
+
+  // suggestion_types            data appearing in the suggestion box, the format is:  [ { "klass": '', "contents": [], "name": '' }, ... ]
+  //                             where klass will be a class attribute in the html for each suggestion category,
+  //                             name is the name of your category,
+  //                             contents is an array of hash containing the suggestions, format is:
+  //                             [{string: 'suggestion1'},...] where string is mandatory (other attributes can be added and displayed with the transclusion directive)
+
+  // suggestionDisplayLimmit     Display limit for all suggestions
+
+  // suggestionLimit             Display limit for suggestions within one category
+
+  // init_string                 first displayed text in the text animation
+
+  // pause_string                optional, this text will be prepended to all the texts in the continue array
+
+  // continue_array              define all the texts in the animation loop,
+  //                             WARNING: pause_string will be displayed together with each of them
+
+  // colored_text                holds the current state of color during the animation
+
+  // resizeAnimation             if true, the animated text will be resized during the animation,
+  //                             as opposed to the typed text which is always resized
 
   var acfiData = function(id, opts){
     opts = opts || {};
@@ -19,7 +77,6 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiIntervalInstance', func
     this.noResultDisplay = false;
     this.selected_index = 10000;
     this.display = false;
-    this.lock_display = false;
     this.actionTimeout = {};
     this.filterTextTimeout = {};
     this.selected = {};
@@ -40,7 +97,7 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiIntervalInstance', func
 
     this.setOpts(opts);
     this.acfiInterval = AcfiIntervalInstance.create(id);
-    this.initText(this.init_string,this.pause_string,this.continue_array);
+    this.initText(this.init_string, this.pause_string, this.continue_array);
   };
 
 
@@ -165,15 +222,18 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiIntervalInstance', func
     return length;
   };
 
+
   var show = function(){
     this.noResultDisplay = (this.displayedLength() === 0);
     this.display = true;
   };
 
+
   var hide = function(){
     this.noResultDisplay = false;
     this.display = false;
   };
+
 
   var selectSuggestion = function(i1, i2){
     this.deselectAll();
@@ -222,13 +282,14 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiIntervalInstance', func
     this.string = string;
     this.data_before = [ this.fillChar(string) ];
     this.data_after = [];
-
   };
+
 
   var setInput = function(string){
     this.updateInput(string);
     this.hide();
   };
+
 
   var flattenIndex = function(i1, i2){
     var count = i2;
@@ -346,6 +407,8 @@ acfi.factory('acfiData', [ '$timeout','$rootScope', 'acfiIntervalInstance', func
   return acfiData;
 }]);
 
+
+// this handles instances of the service above.
 
 acfi.factory('acfiDataInstance', [ 'acfiData', function(acfiData){
 

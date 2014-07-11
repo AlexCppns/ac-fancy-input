@@ -28,8 +28,8 @@ acfi.factory('acfiCaret', function () {
 
   acfiCaret.setDirection = function(e){
     var d = 0;
-    if( e.keyCode === 37 ){ d = -1; }
-    if( e.keyCode === 39 ){ d = 1; }
+    if(e.keyCode === 37){ d = -1; }
+    if(e.keyCode === 39){ d = 1; }
     if(e.type === 'mousedown'){ acfiCaret.lastOffset = e.clientX; }
     if(e.type === 'mouseup'){ d = e.clientX < acfiCaret.lastOffset ? -1 : 1; }
     acfiCaret.direction = d;

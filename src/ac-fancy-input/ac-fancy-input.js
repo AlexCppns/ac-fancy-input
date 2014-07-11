@@ -3,13 +3,6 @@
 // Date of first iteration: Fri 20 Jun 2014 15:29:06 EDT
 // Purpose: directive to create an advanced typeahead combined with an animated search input
 //
-// To Do:
-// - Consistent object names and configuration
-// - Remove $rootScope usage where not needed
-// - Full tests of the multiple instances
-// - Extract some of the css classes/Clean up the css
-// - Move/Remove application specific code
-
 
 
 

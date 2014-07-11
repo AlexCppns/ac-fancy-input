@@ -135,6 +135,9 @@ The default templates are defined [here](https://github.com/AlexCppns/ac-fancy-i
 
 - Increase test coverage.
 - Improve the demo.
+- Write more documentation.
+- Write a simplified css for the example.
+- Change some variable and method names to improve code clarity.
 - `$broadcast` can become expensive => investigate better ways of handling actions.
 
 

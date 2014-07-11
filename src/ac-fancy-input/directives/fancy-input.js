@@ -46,7 +46,7 @@ acfi.controller('acfiSearchboxController', [ '$scope', '$window', 'acfiIntervalI
 
 // ******************************************* fancy input directives *********************************************** //
 
-acfi.directive('acFancyInput', [ '$rootScope', 'acfiCaret', "$timeout", 'acfiDataInstance','$templateCache', function($rootScope, acfiCaret, $timeout, AcfiDataInstance, $templateCache) {
+acfi.directive('acFancyInput', [ '$rootScope', 'acfiCaret', 'acfiDataInstance','$templateCache', function($rootScope, acfiCaret, AcfiDataInstance, $templateCache) {
 
   return {
     restrict: "A",

@@ -4,7 +4,7 @@
 // ******************************** controller definition for search-box-suggestions ******************************** //
 
 
-acfi.controller('acfiSuggestionsController',[ 'acfiDataInstance', '$scope','$q', function(AcfiDataInstance, $scope, $q){
+acfi.controller('acfiSuggestionsController',[ 'acfiDataInstance', '$scope', '$q', function(AcfiDataInstance, $scope, $q){
 
   $scope.AcfiData = AcfiDataInstance.init($scope.acId);
 

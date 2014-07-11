@@ -5,14 +5,12 @@
 
 // manages text animation in the input field
 
-
-acfi.factory('acfiInterval', [ '$q', '$rootScope', '$interval', '$timeout', function ($q, $rootScope, $interval, $timeout) {
+acfi.factory('acfiInterval', [ '$rootScope', '$interval', '$timeout', function ($rootScope, $interval, $timeout) {
 
   var acfiInterval = function(id){
     this.id = id;
     this.intervalTime = 90;
     this.pauseTimeoutTime = 2000;
-    this.stopInterval = false;
     this.initInterval = null;
     this.pauseTimeout = null;
     this.continueInterval = null;
@@ -51,7 +49,6 @@ acfi.factory('acfiInterval', [ '$q', '$rootScope', '$interval', '$timeout', func
     this.initInterval = null;
     this.continueInterval = null;
     this.pauseTimeout = null;
-    this.stopInterval = true;
     $rootScope.$broadcast("onStopInterval", this.id);
   };
 
@@ -118,6 +115,7 @@ acfi.factory('acfiInterval', [ '$q', '$rootScope', '$interval', '$timeout', func
   return acfiInterval;
 }]);
 
+// this handles instances of the service above.
 
 acfi.factory('acfiIntervalInstance', [ "acfiInterval", function(acfiInterval){
 
@@ -133,7 +131,7 @@ acfi.factory('acfiIntervalInstance', [ "acfiInterval", function(acfiInterval){
       acfiIntervalInstance.create(id);
     }
 
-    if(start===true){ acfiIntervalInstance.data[id].startAnimationInterval(); }
+    if(start === true){ acfiIntervalInstance.data[id].startAnimationInterval(); }
     return acfiIntervalInstance.data[id];
   };
 
