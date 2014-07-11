@@ -1,5 +1,3 @@
-(function(window, document) {
-
 
 // Author: Alexandre FC Coppens
 // Date of first iteration: Fri 20 Jun 2014 15:29:06 EDT
@@ -985,4 +983,4 @@ acfi.factory('acfiIntervalInstance', [ "acfiInterval", function(acfiInterval){
 
   return acfiTemplates;
 
-}]);})(window, document);
+}]);
