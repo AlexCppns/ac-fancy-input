@@ -56,7 +56,7 @@ acfi.directive('acFancyInputSuggestions', [ '$rootScope','$window', '$templateCa
     transclude: true,
     controller: 'acfiSuggestionsController',
     link: function(scope, element, attrs){
-      if(attrs.acSuggestionCount===undefined){
+      if(attrs.acSuggestionCount === undefined){
         scope.acSuggestionCount = 0;
       }
 
@@ -89,8 +89,8 @@ var acfi_transclude_directive = function(string){
     restrict: 'A',
     require: '^acFancyInputSuggestions',
     link: function(scope, element, a, controller){
-      if(controller['renderAcfi'+string+'Template']!==undefined){
-        controller['renderAcfi'+string+'Template'](scope, function(dom){
+      if(controller['renderAcfi' + string + 'Template'] !== undefined){
+        controller['renderAcfi' + string + 'Template'](scope, function(dom){
           element.append(dom);
         });
       }
